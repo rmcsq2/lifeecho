@@ -7,7 +7,7 @@ export default function RootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/welcome');
+    router.push('/create-account');
   }, [router]);
 
   return (
