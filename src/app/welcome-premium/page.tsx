@@ -45,7 +45,7 @@ export default function WelcomePremium() {
 
         {/* Instruction Text */}
         <p className="font-canva-sans text-2xl text-gray-700 mb-8 leading-relaxed">
-          Say "Echo" or your custom "Trigger Word" for hands free use
+          Ask Echo anything and get a personal response
         </p>
 
         {/* Premium Features CTA */}
