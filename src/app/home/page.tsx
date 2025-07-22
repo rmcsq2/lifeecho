@@ -1,15 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 export default function Home() {
-  const [isListening, setIsListening] = useState(false);
+  const [isActivated, setIsActivated] = useState(false);
+  const [currentTranscript, setCurrentTranscript] = useState('');
+
+  const { 
+    isListening, 
+    transcript, 
+    isSupported, 
+    error, 
+    startListening, 
+    stopListening,
+    resetTrigger 
+  } = useVoiceRecognition({
+    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    onTriggerDetected: () => {
+      setIsActivated(true);
+      console.log('Echo trigger detected!');
+    },
+    onTranscript: (text, isFinal) => {
+      setCurrentTranscript(text);
+      if (isFinal) {
+        console.log('Final transcript:', text);
+        setTimeout(() => {
+          setCurrentTranscript('');
+          setIsActivated(false);
+          resetTrigger();
+        }, 3000);
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (isSupported) {
+      startListening();
+    }
+  }, [isSupported, startListening]);
 
   const handleVoiceActivation = () => {
-    setIsListening(!isListening);
-    console.log('Voice activation toggled:', !isListening);
+    if (!isListening) {
+      startListening();
+    } else {
+      stopListening();
+    }
   };
 
   return (
@@ -21,21 +59,26 @@ export default function Home() {
           <button
             onClick={handleVoiceActivation}
             className={`w-full h-full rounded-full flex items-center justify-center transition-all duration-300 relative overflow-hidden ${
-              isListening 
-                ? 'shadow-2xl scale-105' 
+              isActivated 
+                ? 'shadow-2xl scale-110' 
+                : isListening 
+                ? 'shadow-lg scale-105 animate-pulse' 
                 : 'hover:scale-102'
             }`}
           >
-            {/* Pulse Animation Ring */}
+            {/* Glow Animation Rings */}
             {isListening && (
-              <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping opacity-75"></div>
+              <>
+                <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-75"></div>
+                <div className="absolute inset-2 rounded-full bg-blue-300 animate-ping opacity-50 animation-delay-150"></div>
+              </>
             )}
             
             {/* Logo Image */}
-            <div className="w-full h-full relative">
+            <div className="w-full h-full relative z-10">
               <Image
                 src="/logo.png"
-                alt="Life Echo Logo"
+                alt="Life Echo Logo - Voice Activated"
                 fill
                 className="object-contain"
                 priority
@@ -44,10 +87,44 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Status Text */}
-        <p className="font-canva-sans text-xl text-gray-600 mb-16 text-center">
-          {isListening ? 'Listening...' : 'Tap to activate or say "Echo"'}
-        </p>
+        {/* Status Text & Voice Feedback */}
+        <div className="mb-16 text-center">
+          <p className="font-canva-sans text-xl text-gray-600 mb-4">
+            {isActivated 
+              ? 'Listening... speak your thoughts' 
+              : isListening 
+              ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" to activate` 
+              : 'Tap logo or say "Echo"'
+            }
+          </p>
+          
+          {/* Live Transcription */}
+          {(currentTranscript || isActivated) && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
+              <p className="font-canva-sans text-base text-blue-800">
+                {currentTranscript || 'Ready to record...'}
+              </p>
+            </div>
+          )}
+          
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
+              <p className="font-canva-sans text-sm text-red-600">
+                Voice Error: {error}
+              </p>
+            </div>
+          )}
+          
+          {/* Browser Support Warning */}
+          {!isSupported && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
+              <p className="font-canva-sans text-sm text-yellow-700">
+                Voice recognition not supported. Try Chrome or Edge for full functionality.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* 5 Icon Row */}
         <div className="flex items-center justify-between w-full max-w-md mb-16">

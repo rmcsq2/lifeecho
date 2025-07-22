@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import VoiceSettings from './voice-settings';
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -166,6 +167,9 @@ export default function Settings() {
               </div>
             </div>
           </div>
+
+          {/* Voice Settings Section */}
+          <VoiceSettings />
 
           {/* Premium AI & Ask Echo Section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">

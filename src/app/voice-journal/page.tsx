@@ -1,18 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 export default function VoiceJournal() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [transcription, setTranscription] = useState('');
+  const [isActivated, setIsActivated] = useState(false);
+  const [savedTranscripts, setSavedTranscripts] = useState<string[]>([]);
+
+  const { 
+    isListening, 
+    transcript, 
+    isSupported, 
+    error, 
+    startListening, 
+    stopListening,
+    resetTrigger 
+  } = useVoiceRecognition({
+    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    onTriggerDetected: () => {
+      setIsActivated(true);
+      console.log('Voice Journal activated!');
+    },
+    onTranscript: (text, isFinal) => {
+      if (isFinal && text.trim()) {
+        setSavedTranscripts(prev => [...prev, text]);
+        setTimeout(() => {
+          setIsActivated(false);
+          resetTrigger();
+        }, 2000);
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (isSupported) {
+      startListening();
+    }
+  }, [isSupported, startListening]);
 
   const handleMicClick = () => {
-    setIsRecording(!isRecording);
-    if (!isRecording) {
-      setTranscription('Listening... speak your thoughts');
+    if (!isListening) {
+      startListening();
     } else {
-      setTranscription('Recording stopped. Your thoughts have been saved.');
+      stopListening();
     }
   };
 
@@ -31,23 +62,28 @@ export default function VoiceJournal() {
         <div className="mb-12">
           <button
             onClick={handleMicClick}
-            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 ${
-              isRecording 
+            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative ${
+              isActivated 
                 ? 'bg-red-500 shadow-2xl scale-110' 
+                : isListening
+                ? 'bg-blue-500 shadow-lg scale-105 animate-pulse'
                 : 'bg-blue-500 hover:bg-blue-600 hover:scale-105'
             }`}
           >
-            {/* Pulse Animation Ring */}
-            {isRecording && (
-              <div className="absolute w-32 h-32 rounded-full border-4 border-red-300 animate-ping opacity-75"></div>
+            {/* Glow Animation */}
+            {isListening && (
+              <>
+                <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-75"></div>
+                <div className="absolute inset-2 rounded-full bg-blue-300 animate-ping opacity-50 animation-delay-150"></div>
+              </>
             )}
             
             {/* Mic Icon */}
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              isRecording ? 'bg-white' : 'bg-white'
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative z-10 ${
+              isActivated ? 'bg-white' : 'bg-white'
             }`}>
               <div className={`w-8 h-8 rounded-full ${
-                isRecording ? 'bg-red-500' : 'bg-blue-500'
+                isActivated ? 'bg-red-500' : 'bg-blue-500'
               }`}></div>
             </div>
           </button>
@@ -55,15 +91,52 @@ export default function VoiceJournal() {
 
         {/* Instruction Text */}
         <p className="font-canva-sans text-xl text-center text-gray-700 mb-12 max-w-md">
-          Speak your thoughts, and I'll save them.
+          {isActivated 
+            ? 'Recording... speak your thoughts' 
+            : isListening 
+            ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" to start recording` 
+            : 'Tap mic or say "Echo" to begin'
+          }
         </p>
 
         {/* Live Transcription Box */}
-        <div className="w-[300px] h-[120px] bg-gray-50 border border-gray-200 rounded-lg p-4 mb-16">
+        <div className="w-[300px] h-[120px] bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
           <p className="font-canva-sans text-base text-gray-600 leading-relaxed">
-            {transcription || 'Your transcription will appear here...'}
+            {transcript || (isActivated ? 'Listening...' : 'Your transcription will appear here...')}
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 max-w-sm mx-auto">
+            <p className="font-canva-sans text-sm text-red-600">
+              Voice Error: {error}
+            </p>
+          </div>
+        )}
+
+        {/* Browser Support Warning */}
+        {!isSupported && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 max-w-sm mx-auto">
+            <p className="font-canva-sans text-sm text-yellow-700">
+              Voice recognition not supported. Try Chrome or Edge.
+            </p>
+          </div>
+        )}
+
+        {/* Saved Transcripts */}
+        {savedTranscripts.length > 0 && (
+          <div className="w-full max-w-sm mb-8">
+            <h3 className="font-canva-sans text-lg font-medium text-gray-800 mb-4">Recent Recordings:</h3>
+            <div className="space-y-2">
+              {savedTranscripts.slice(-3).map((text, index) => (
+                <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="font-canva-sans text-sm text-blue-800">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer - Quick Icons */}

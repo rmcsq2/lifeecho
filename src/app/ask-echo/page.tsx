@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 export default function AskEcho() {
-  const [isListening, setIsListening] = useState(false);
+  const [isActivated, setIsActivated] = useState(false);
   const [response, setResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -14,18 +15,45 @@ export default function AskEcho() {
     "Show me my most recent voice recordings"
   ];
 
-  const handleMicClick = () => {
-    if (!isListening) {
-      setIsListening(true);
+  const { 
+    isListening, 
+    transcript, 
+    isSupported, 
+    error, 
+    startListening, 
+    stopListening,
+    resetTrigger 
+  } = useVoiceRecognition({
+    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    onTriggerDetected: () => {
+      setIsActivated(true);
       setResponse('');
-      setTimeout(() => {
-        setIsListening(false);
+      console.log('Ask Echo activated!');
+    },
+    onTranscript: (text, isFinal) => {
+      if (isFinal && text.trim()) {
+        setIsActivated(false);
         setIsProcessing(true);
         setTimeout(() => {
           setIsProcessing(false);
-          setResponse("I found 3 notes from yesterday about your project ideas and weekend plans. Would you like me to read them to you or show you the details?");
+          setResponse(`Here's what I found about "${text}": You have several entries that might interest you. Let me gather that information for you.`);
+          resetTrigger();
         }, 2000);
-      }, 3000);
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (isSupported) {
+      startListening();
+    }
+  }, [isSupported, startListening]);
+
+  const handleMicClick = () => {
+    if (!isListening) {
+      startListening();
+    } else {
+      stopListening();
     }
   };
 
@@ -55,8 +83,10 @@ export default function AskEcho() {
             onClick={handleMicClick}
             disabled={isProcessing}
             className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative ${
-              isListening 
-                ? 'bg-blue-500 shadow-2xl scale-110' 
+              isActivated 
+                ? 'bg-red-500 shadow-2xl scale-110' 
+                : isListening 
+                ? 'bg-blue-500 shadow-lg scale-105 animate-pulse' 
                 : isProcessing
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600 hover:scale-105'
@@ -73,7 +103,7 @@ export default function AskEcho() {
             {/* Mic Icon */}
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center relative z-10">
               <div className={`w-8 h-8 rounded-full ${
-                isProcessing ? 'bg-gray-400' : 'bg-blue-500'
+                isActivated ? 'bg-red-500' : isProcessing ? 'bg-gray-400' : 'bg-blue-500'
               }`}></div>
             </div>
           </button>
@@ -81,13 +111,24 @@ export default function AskEcho() {
 
         {/* Status Text */}
         <p className="font-canva-sans text-xl text-center text-gray-700 mb-8">
-          {isListening 
+          {isActivated 
             ? 'Listening... ask me anything!' 
+            : isListening 
+            ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" then ask your question` 
             : isProcessing 
             ? 'Processing your question...'
-            : 'Tap to ask Echo a question'
+            : 'Tap mic or say "Echo" to ask a question'
           }
         </p>
+
+        {/* Live Transcript Display */}
+        {(transcript || isActivated) && (
+          <div className="w-full max-w-md bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <p className="font-canva-sans text-base text-blue-800">
+              {transcript || 'Listening for your question...'}
+            </p>
+          </div>
+        )}
 
         {/* Response Window */}
         <div className="w-full max-w-md bg-gray-50 border border-gray-200 rounded-lg p-6 mb-12 min-h-[120px]">
@@ -101,6 +142,24 @@ export default function AskEcho() {
             </p>
           )}
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 max-w-md">
+            <p className="font-canva-sans text-sm text-red-600">
+              Voice Error: {error}
+            </p>
+          </div>
+        )}
+
+        {/* Browser Support Warning */}
+        {!isSupported && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 max-w-md">
+            <p className="font-canva-sans text-sm text-yellow-700">
+              Voice recognition not supported. Try Chrome or Edge.
+            </p>
+          </div>
+        )}
 
         {/* Example Prompts */}
         <div className="w-full max-w-md">
