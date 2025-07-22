@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -12,25 +13,17 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between p-6 border-b border-gray-100">
-        <h1 className="font-league-spartan text-2xl font-bold text-gray-900">
-          Life Echo
-        </h1>
-        <Link href="/profile" className="w-8 h-8 bg-gray-200 rounded-full"></Link>
-      </header>
-
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col max-w-[864px] mx-auto">
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-        {/* Voice Activation Circle */}
-        <div className="relative mb-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-8 py-16">
+        {/* Blue Circle with Logo - 40% screen width */}
+        <div className="relative mb-16 w-[40%] aspect-square max-w-[300px] min-w-[200px]">
           <button
             onClick={handleVoiceActivation}
-            className={`w-48 h-48 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`w-full h-full rounded-full flex items-center justify-center transition-all duration-300 relative overflow-hidden ${
               isListening 
-                ? 'bg-blue-500 shadow-lg scale-105' 
-                : 'bg-blue-400 hover:bg-blue-500'
+                ? 'shadow-2xl scale-105' 
+                : 'hover:scale-102'
             }`}
           >
             {/* Pulse Animation Ring */}
@@ -38,75 +31,102 @@ export default function Home() {
               <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping opacity-75"></div>
             )}
             
-            {/* Microphone Icon */}
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-              <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+            {/* Logo Image */}
+            <div className="w-full h-full relative">
+              <Image
+                src="/logo.png"
+                alt="Life Echo Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
           </button>
         </div>
 
         {/* Status Text */}
-        <p className="font-canva-sans text-xl text-gray-600 mb-8 text-center">
+        <p className="font-canva-sans text-xl text-gray-600 mb-16 text-center">
           {isListening ? 'Listening...' : 'Tap to activate or say "Echo"'}
         </p>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+        {/* 5 Icon Row */}
+        <div className="flex items-center justify-between w-full max-w-md mb-16">
           <Link 
-            href="/drop-pin"
-            className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200"
+            href="/notes"
+            className="flex flex-col items-center space-y-2 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
           >
-            <div className="w-8 h-8 bg-red-500 rounded-full mx-auto mb-2"></div>
-            <span className="font-canva-sans text-sm font-medium text-gray-700">Drop Pin</span>
+            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white rounded-sm"></div>
+            </div>
+            <span className="font-canva-sans text-base text-gray-700">Notes</span>
           </Link>
           
           <Link 
-            href="/voice-journal"
-            className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200"
+            href="/transcripts"
+            className="flex flex-col items-center space-y-2 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
           >
-            <div className="w-8 h-8 bg-blue-500 rounded-full mx-auto mb-2"></div>
-            <span className="font-canva-sans text-sm font-medium text-gray-700">Voice Journal</span>
+            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white rounded-sm"></div>
+            </div>
+            <span className="font-canva-sans text-base text-gray-700">Transcripts</span>
+          </Link>
+          
+          <Link 
+            href="/drop-pin"
+            className="flex flex-col items-center space-y-2 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+          >
+            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white rounded-full"></div>
+            </div>
+            <span className="font-canva-sans text-base text-gray-700">Drop-a-Pin</span>
           </Link>
           
           <Link 
             href="/photo-journal"
-            className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200"
+            className="flex flex-col items-center space-y-2 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
           >
-            <div className="w-8 h-8 bg-green-500 rounded-full mx-auto mb-2"></div>
-            <span className="font-canva-sans text-sm font-medium text-gray-700">Photo Journal</span>
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white rounded-sm"></div>
+            </div>
+            <span className="font-canva-sans text-base text-gray-700">Photo</span>
           </Link>
           
           <Link 
-            href="/reminders"
-            className="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200"
+            href="/more"
+            className="flex flex-col items-center space-y-2 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
           >
-            <div className="w-8 h-8 bg-yellow-500 rounded-full mx-auto mb-2"></div>
-            <span className="font-canva-sans text-sm font-medium text-gray-700">Reminders</span>
+            <div className="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white rounded-full"></div>
+            </div>
+            <span className="font-canva-sans text-base text-gray-700">More</span>
           </Link>
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="flex items-center justify-around p-4 border-t border-gray-100 bg-white">
-        <Link href="/home" className="flex flex-col items-center space-y-1">
-          <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
-          <span className="font-canva-sans text-xs text-blue-500">Home</span>
-        </Link>
-        
-        <Link href="/notes" className="flex flex-col items-center space-y-1">
-          <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-          <span className="font-canva-sans text-xs text-gray-400">Notes</span>
-        </Link>
-        
-        <Link href="/ask-echo" className="flex flex-col items-center space-y-1">
-          <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-          <span className="font-canva-sans text-xs text-gray-400">Ask Echo</span>
-        </Link>
-        
-        <Link href="/settings" className="flex flex-col items-center space-y-1">
-          <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-          <span className="font-canva-sans text-xs text-gray-400">Settings</span>
-        </Link>
+      {/* Bottom Navigation - Minimal */}
+      <nav className="flex items-center justify-center p-6 bg-white border-t border-gray-100">
+        <div className="flex items-center space-x-8">
+          <Link href="/home" className="flex flex-col items-center space-y-1">
+            <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+            <span className="font-canva-sans text-base text-blue-500 font-medium">Home</span>
+          </Link>
+          
+          <button 
+            onClick={handleVoiceActivation}
+            className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-all duration-200 ${
+              isListening ? 'bg-blue-50' : 'hover:bg-gray-50'
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              isListening ? 'bg-blue-500 animate-pulse' : 'bg-gray-400'
+            }`}>
+              <div className="w-4 h-4 bg-white rounded-full"></div>
+            </div>
+            <span className={`font-canva-sans text-base ${
+              isListening ? 'text-blue-500' : 'text-gray-400'
+            }`}>Voice</span>
+          </button>
+        </div>
       </nav>
     </div>
   );
