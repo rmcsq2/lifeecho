@@ -98,27 +98,27 @@ export default function VoiceJournal() {
           <div className="w-8"></div>
         </div>
         
-        {/* Voice Activation Section */}
-        <div className="text-center mt-8">
+        {/* Life Echo Logo - Right below titles */}
+        <div className="flex justify-center mb-4">
+          <div className={`relative transition-all duration-300 ${
+            isListening ? 'animate-pulse' : ''
+          }`} style={{ width: '572px', height: '572px' }}>
+            <Image
+              src="/life-echo-logo.png"
+              alt="Life Echo Logo"
+              width={572}
+              height={572}
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+        
+        {/* Voice Activation Text */}
+        <div className="text-center">
           <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B', marginBottom: '10px' }}>
             Say 'Echo' to Dictate Notes
           </p>
-          
-          {/* Life Echo Logo */}
-          <div className="flex justify-center">
-            <div className={`relative transition-all duration-300 ${
-              isListening ? 'animate-pulse' : ''
-            }`} style={{ width: '572px', height: '572px' }}>
-              <Image
-                src="/life-echo-logo.png"
-                alt="Life Echo Logo"
-                width={572}
-                height={572}
-                className="object-contain"
-                priority
-              />
-            </div>
-          </div>
         </div>
       </header>
 
