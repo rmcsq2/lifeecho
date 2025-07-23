@@ -1,156 +1,249 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { Reminder } from '../../types/Reminder';
+import { reminderStorage, parseReminderDateTime, formatReminderTime } from '../../utils/reminderStorage';
 
 export default function Reminders() {
-  const [reminders] = useState([
-    {
-      id: 1,
-      title: 'Team Meeting',
-      time: '2:00 PM Today',
-      description: 'Weekly project sync with the development team',
-      completed: false
-    },
-    {
-      id: 2,
-      title: 'Call Mom',
-      time: '6:00 PM Today',
-      description: 'Check in and catch up on family news',
-      completed: false
-    },
-    {
-      id: 3,
-      title: 'Grocery Shopping',
-      time: 'Tomorrow 10:00 AM',
-      description: 'Pick up ingredients for weekend cooking',
-      completed: true
-    },
-    {
-      id: 4,
-      title: 'Doctor Appointment',
-      time: 'Friday 3:30 PM',
-      description: 'Annual checkup with Dr. Smith',
-      completed: false
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [isActivated, setIsActivated] = useState(false);
+  const [triggerWord, setTriggerWord] = useState('echo');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+      loadReminders();
     }
-  ]);
+  }, []);
 
-  const [showVoiceCommand, setShowVoiceCommand] = useState(false);
-
-  const handleAddReminder = () => {
-    console.log('Add reminder clicked');
+  const loadReminders = () => {
+    const loadedReminders = reminderStorage.getReminders();
+    setReminders(loadedReminders);
   };
 
-  const handleVoiceCommand = () => {
-    setShowVoiceCommand(true);
-    setTimeout(() => setShowVoiceCommand(false), 3000);
+  const { 
+    isListening, 
+    isSupported, 
+    error, 
+    startListening, 
+    stopListening,
+    resetTrigger 
+  } = useVoiceRecognition({
+    triggerWord: triggerWord,
+    onTriggerDetected: () => {
+      setIsActivated(true);
+      console.log('Reminders voice activated!');
+    },
+    onReminderDetected: (text) => {
+      const { parsedText, timestamp } = parseReminderDateTime(text);
+      const savedReminder = reminderStorage.saveReminder(parsedText, 'reminder', timestamp);
+      console.log('Reminder created:', savedReminder);
+      loadReminders();
+      setIsActivated(false);
+      resetTrigger();
+    },
+    onTaskDetected: (text) => {
+      const { parsedText } = parseReminderDateTime(text);
+      const savedTask = reminderStorage.saveReminder(parsedText, 'task');
+      console.log('Task created:', savedTask);
+      loadReminders();
+      setIsActivated(false);
+      resetTrigger();
+    },
+    onStopDetected: () => {
+      setIsActivated(false);
+      console.log('Reminders voice stopped');
+    }
+  });
+
+  useEffect(() => {
+    if (isSupported) {
+      startListening();
+    }
+  }, [isSupported, startListening]);
+
+  const toggleReminder = (id: string) => {
+    reminderStorage.toggleReminder(id);
+    loadReminders();
   };
 
-  const toggleReminder = (id: number) => {
-    console.log('Toggle reminder:', id);
-  };
+  const scheduledReminders = reminders.filter(r => r.type === 'reminder' && r.timestamp);
+  const tasks = reminders.filter(r => r.type === 'task');
 
   return (
     <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
-      {/* Header */}
-      <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
-          Reminders
-        </h1>
+      {/* Header Section */}
+      <header className="pt-16 pb-8 px-8">
+        <div className="flex items-center mb-4">
+          <h1 className="font-league-spartan text-4xl font-bold" style={{ color: 'var(--foreground)' }}>
+            LIFE ECHOS
+          </h1>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/home" className="w-6 h-6 flex items-center justify-center">
+            <div className="w-6 h-6 bg-gray-600 rounded-sm"></div>
+          </Link>
+          <h2 className="font-canva-sans text-xl font-bold" style={{ color: 'var(--foreground)' }}>
+            Reminder & Tasks
+          </h2>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-8">
-        {/* Voice Command Option */}
-        <div className="mb-8">
-          <button
-            onClick={handleVoiceCommand}
-            className={`w-full p-4 rounded-lg border-2 border-dashed transition-all duration-200 ${
-              showVoiceCommand
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-            }`}
-          >
-            <p className="font-canva-sans text-base text-gray-600 text-center">
-              {showVoiceCommand 
-                ? '🎤 Listening... "Echo, remind me at..."'
-                : '💬 Echo, remind me at...'
-              }
+      <main className="flex-1 px-8 pb-20">
+        {/* Voice Status */}
+        {isActivated && (
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--accent)', border: '1px solid var(--border)' }}>
+            <p className="font-canva-sans text-base text-center" style={{ color: 'var(--primary-blue)' }}>
+              🎤 Say "Echo, remind me..." or "Echo remember..."
             </p>
-          </button>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--destructive)', border: '1px solid var(--border)' }}>
+            <p className="font-canva-sans text-sm text-center" style={{ color: 'var(--destructive-foreground)' }}>
+              Voice Error: {error}
+            </p>
+          </div>
+        )}
+
+        {/* Scheduled Reminders Section */}
+        <div className="mb-8">
+          <h3 className="font-canva-sans text-lg font-bold mb-4" style={{ color: 'var(--foreground)' }}>
+            Scheduled Reminders
+          </h3>
+          <div className="space-y-4">
+            {scheduledReminders.length > 0 ? (
+              scheduledReminders.map((reminder) => (
+                <div
+                  key={reminder.id}
+                  className={`rounded-lg shadow-sm p-6 w-[90%] transition-all duration-200 ${
+                    reminder.completed ? 'opacity-60' : 'hover:shadow-md'
+                  }`}
+                  style={{ 
+                    backgroundColor: 'var(--card)', 
+                    border: '1px solid var(--border)' 
+                  }}
+                >
+                  <div className="flex items-start space-x-4">
+                    <button
+                      onClick={() => toggleReminder(reminder.id)}
+                      className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200"
+                      style={{
+                        backgroundColor: reminder.completed ? 'var(--success)' : 'transparent',
+                        borderColor: reminder.completed ? 'var(--success)' : 'var(--border)'
+                      }}
+                      onMouseEnter={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--primary-blue)')}
+                      onMouseLeave={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--border)')}
+                    >
+                      {reminder.completed && (
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                      )}
+                    </button>
+
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className={`font-canva-sans text-xl font-bold ${
+                          reminder.completed ? 'line-through' : ''
+                        }`}
+                            style={{ 
+                              color: reminder.completed ? 'var(--muted-foreground)' : 'var(--foreground)' 
+                            }}>
+                          {reminder.text}
+                        </h4>
+                        {reminder.timestamp && (
+                          <p className="font-canva-sans text-sm font-medium" style={{ color: 'var(--primary-blue)' }}>
+                            {formatReminderTime(reminder.timestamp)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="font-canva-sans text-base text-gray-500 text-center py-8">
+                No scheduled reminders yet. Say "Echo, remind me..." to create one.
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Reminders List */}
-        <div className="space-y-4 mb-8">
-          {reminders.map((reminder) => (
-            <div
-              key={reminder.id}
-              className={`rounded-lg shadow-sm p-6 w-[90%] transition-all duration-200 ${
-                reminder.completed ? 'opacity-60' : 'hover:shadow-md'
-              }`}
-              style={{ 
-                backgroundColor: 'var(--card)', 
-                border: '1px solid var(--border)' 
-              }}
-            >
-              <div className="flex items-start space-x-4">
-                {/* Checkbox */}
-                <button
-                  onClick={() => toggleReminder(reminder.id)}
-                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200"
-                  style={{
-                    backgroundColor: reminder.completed ? 'var(--success)' : 'transparent',
-                    borderColor: reminder.completed ? 'var(--success)' : 'var(--border)'
+        {/* Tasks Section */}
+        <div className="mb-8">
+          <h3 className="font-canva-sans text-lg font-bold mb-4" style={{ color: 'var(--foreground)' }}>
+            Tasks
+          </h3>
+          <div className="space-y-4">
+            {tasks.length > 0 ? (
+              tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className={`rounded-lg shadow-sm p-6 w-[90%] transition-all duration-200 ${
+                    task.completed ? 'opacity-60' : 'hover:shadow-md'
+                  }`}
+                  style={{ 
+                    backgroundColor: 'var(--card)', 
+                    border: '1px solid var(--border)' 
                   }}
-                  onMouseEnter={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--primary-blue)')}
-                  onMouseLeave={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--border)')}
                 >
-                  {reminder.completed && (
-                    <div className="w-3 h-3 bg-white rounded-full"></div>
-                  )}
-                </button>
+                  <div className="flex items-start space-x-4">
+                    <button
+                      onClick={() => toggleReminder(task.id)}
+                      className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200"
+                      style={{
+                        backgroundColor: task.completed ? 'var(--success)' : 'transparent',
+                        borderColor: task.completed ? 'var(--success)' : 'var(--border)'
+                      }}
+                      onMouseEnter={(e) => !task.completed && (e.currentTarget.style.borderColor = 'var(--primary-blue)')}
+                      onMouseLeave={(e) => !task.completed && (e.currentTarget.style.borderColor = 'var(--border)')}
+                    >
+                      {task.completed && (
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                      )}
+                    </button>
 
-                {/* Content */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className={`font-canva-sans text-xl font-bold ${
-                      reminder.completed ? 'line-through' : ''
-                    }`}
-                        style={{ 
-                          color: reminder.completed ? 'var(--muted-foreground)' : 'var(--foreground)' 
-                        }}>
-                      {reminder.title}
-                    </h3>
-                    <p className="font-canva-sans text-sm text-blue-600 font-medium">
-                      {reminder.time}
-                    </p>
+                    <div className="flex-1">
+                      <h4 className={`font-canva-sans text-xl font-bold ${
+                        task.completed ? 'line-through' : ''
+                      }`}
+                          style={{ 
+                            color: task.completed ? 'var(--muted-foreground)' : 'var(--foreground)' 
+                          }}>
+                        {task.text}
+                      </h4>
+                    </div>
                   </div>
-                  <p className={`font-canva-sans text-base leading-relaxed ${
-                    reminder.completed ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                    {reminder.description}
-                  </p>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))
+            ) : (
+              <p className="font-canva-sans text-base text-gray-500 text-center py-8">
+                No tasks yet. Say "Echo remember..." to create one.
+              </p>
+            )}
+          </div>
         </div>
       </main>
 
-      {/* Add Reminder Button */}
-      <footer className="p-8">
-        <button
-          onClick={handleAddReminder}
-          className="w-full font-canva-sans text-lg font-medium py-4 px-6 rounded-lg transition-colors duration-200"
-          style={{ 
-            backgroundColor: 'var(--primary-blue)', 
-            color: 'var(--primary-foreground)' 
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue-hover)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue)'}
-        >
-          + Add Reminder
-        </button>
-      </footer>
+      {/* Voice Wave Logo - Bottom Right */}
+      <div className="fixed bottom-8 right-8">
+        <div className={`w-16 h-16 relative transition-all duration-300 ${
+          isListening ? 'animate-pulse' : ''
+        }`}>
+          <Image
+            src="/logo.png"
+            alt="Voice Wave Logo"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -62,6 +62,8 @@ interface VoiceRecognitionOptions {
   onStopDetected?: () => void;
   onSubmitDetected?: (finalTranscript: string) => void;
   onAutoSave?: (transcript: string) => void;
+  onReminderDetected?: (text: string) => void;
+  onTaskDetected?: (text: string) => void;
   autoSaveDelay?: number;
 }
 
@@ -75,6 +77,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onStopDetected,
     onSubmitDetected,
     onAutoSave,
+    onReminderDetected,
+    onTaskDetected,
     autoSaveDelay = 5000
   } = options;
 
@@ -152,6 +156,49 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         }
         
         if (!isWaitingForTrigger.current) {
+          const reminderCommands = [
+            'echo remind',
+            'echoremind',
+            `${triggerWord.toLowerCase()} remind`,
+            `${triggerWord.toLowerCase()}remind`
+          ];
+          
+          const taskCommands = [
+            'echo remember',
+            'echoremember',
+            `${triggerWord.toLowerCase()} remember`,
+            `${triggerWord.toLowerCase()}remember`
+          ];
+          
+          const hasReminderCommand = reminderCommands.some(cmd => fullTranscript.includes(cmd));
+          const hasTaskCommand = taskCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasReminderCommand || hasTaskCommand) {
+            let cleanText = fullTranscript;
+            
+            reminderCommands.concat(taskCommands).forEach(cmd => {
+              cleanText = cleanText.replace(new RegExp(cmd, 'gi'), '').trim();
+            });
+            
+            cleanText = cleanText.replace(/^(me\s+)?to\s+/i, '').trim();
+            
+            if (cleanText) {
+              if (hasReminderCommand) {
+                onReminderDetected?.(cleanText);
+              } else {
+                onTaskDetected?.(cleanText);
+              }
+            }
+            
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+          
           const submitCommands = [
             `${triggerWord.toLowerCase()} submit`,
             `${triggerWord.toLowerCase()}submit`,
