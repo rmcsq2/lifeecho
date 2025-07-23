@@ -99,22 +99,25 @@ export default function VoiceJournal() {
         </div>
         
         {/* Voice Activation Section */}
-        <div className="flex items-center justify-between mt-8">
-          <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B' }}>
+        <div className="text-center mt-8">
+          <p className="font-canva-sans text-lg font-medium mb-6" style={{ color: '#4E4B4B' }}>
             Say 'Echo' to Dictate Notes
           </p>
           
-          {/* Voice Wave Logo */}
-          <div className={`w-16 h-16 relative transition-all duration-300 ${
-            isListening ? 'animate-pulse' : ''
-          }`}>
-            <Image
-              src="/logo.png"
-              alt="Voice Wave Logo"
-              fill
-              className="object-contain"
-              priority
-            />
+          {/* Life Echo Logo */}
+          <div className="flex justify-center">
+            <div className={`relative transition-all duration-300 ${
+              isListening ? 'animate-pulse' : ''
+            }`} style={{ width: '572px', height: '572px' }}>
+              <Image
+                src="/life-echo-logo.png"
+                alt="Life Echo Logo"
+                width={572}
+                height={572}
+                className="object-contain"
+                priority
+              />
+            </div>
           </div>
         </div>
       </header>

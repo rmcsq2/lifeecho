@@ -69,7 +69,7 @@ export default function WelcomePremium() {
         </h2>
 
         {/* Logo - Blue Circle with Voice Wave and Gold Accent - Voice Activated */}
-        <div className="w-80 h-80 mx-auto mb-12 relative">
+        <div className="mx-auto mb-12 relative" style={{ width: '572px', height: '572px' }}>
           <button
             onClick={handleLogoClick}
             className={`w-full h-full transition-all duration-300 relative ${
@@ -91,23 +91,14 @@ export default function WelcomePremium() {
               </>
             )}
             
-            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center relative overflow-hidden shadow-lg z-10">
-              {/* Gold Ring */}
-              <div className="absolute inset-2 border-4 border-yellow-400 rounded-full opacity-60"></div>
-              
-              {/* Voice Wave Pattern */}
-              <div className="flex items-center justify-center space-x-1">
-                <div className="w-2 h-8 bg-white rounded-full opacity-90"></div>
-                <div className="w-2 h-12 bg-yellow-200 rounded-full opacity-95"></div>
-                <div className="w-2 h-6 bg-white rounded-full opacity-80"></div>
-                <div className="w-2 h-16 bg-yellow-300 rounded-full opacity-100"></div>
-                <div className="w-2 h-10 bg-white rounded-full opacity-90"></div>
-                <div className="w-2 h-14 bg-yellow-200 rounded-full opacity-95"></div>
-                <div className="w-2 h-8 bg-white rounded-full opacity-90"></div>
-                <div className="w-2 h-12 bg-yellow-200 rounded-full opacity-95"></div>
-                <div className="w-2 h-6 bg-white rounded-full opacity-80"></div>
-              </div>
-            </div>
+            <Image
+              src="/life-echo-logo.png"
+              alt="Life Echo Logo"
+              width={572}
+              height={572}
+              className="w-full h-full object-contain z-10 relative"
+              priority
+            />
           </button>
         </div>
 
