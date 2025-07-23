@@ -66,7 +66,7 @@ export default function WelcomePremium() {
         </h1>
 
         {/* Subtitle */}
-        <h2 className="font-canva-sans text-3xl mb-12 leading-tight" style={{ color: 'var(--foreground)' }}>
+        <h2 className="font-canva-sans text-3xl mb-6 leading-tight" style={{ color: 'var(--foreground)' }}>
           RECORD LIFE AS IT HAPPENS
         </h2>
 
@@ -102,8 +102,8 @@ export default function WelcomePremium() {
         </div>
 
         {/* Instruction Text - Right below logo */}
-        <div className="mb-8 text-center">
-          <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+        <div className="mb-4 text-center">
+          <p className="font-canva-sans text-2xl mb-2 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
               ? 'Premium voice activated! Ask Echo anything...' 
               : isListening 
@@ -114,7 +114,7 @@ export default function WelcomePremium() {
         </div>
 
         {/* Voice Status */}
-        <div className="mb-8 text-center">
+        <div className="mb-4 text-center">
           
           {/* Live Transcription */}
           {(currentTranscript || isActivated) && (
@@ -152,7 +152,7 @@ export default function WelcomePremium() {
         </div>
 
         {/* Footer Tagline */}
-        <p className="font-canva-sans text-3xl font-bold tracking-wide mb-12" style={{ color: 'var(--foreground)' }}>
+        <p className="font-canva-sans text-3xl font-bold tracking-wide mb-6" style={{ color: 'var(--foreground)' }}>
           LIFE IS WHAT YOU MAKE IT
         </p>
 

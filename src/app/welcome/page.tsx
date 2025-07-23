@@ -66,7 +66,7 @@ export default function WelcomeGeneral() {
         </h1>
 
         {/* Subtitle */}
-        <h2 className="font-canva-sans text-3xl mb-12 leading-tight" style={{ color: 'var(--foreground)' }}>
+        <h2 className="font-canva-sans text-3xl mb-6 leading-tight" style={{ color: 'var(--foreground)' }}>
           RECORD LIFE AS IT HAPPENS
         </h2>
 
@@ -102,8 +102,8 @@ export default function WelcomeGeneral() {
         </div>
 
         {/* Instruction Text - Right below logo */}
-        <div className="mb-8 text-center">
-          <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+        <div className="mb-4 text-center">
+          <p className="font-canva-sans text-2xl mb-2 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
               ? 'Voice activated! Speak freely...' 
               : isListening 
@@ -114,7 +114,7 @@ export default function WelcomeGeneral() {
         </div>
 
         {/* Voice Status */}
-        <div className="mb-16 text-center">
+        <div className="mb-8 text-center">
           
           {/* Live Transcription */}
           {(currentTranscript || isActivated) && (
@@ -150,7 +150,7 @@ export default function WelcomeGeneral() {
         </p>
 
         {/* Navigation Button */}
-        <div className="mt-12 flex justify-center">
+        <div className="mt-6 flex justify-center">
           <Link 
             href="/home"
             className="text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-colors duration-200"
