@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 export default function AskEcho() {
@@ -192,6 +193,59 @@ export default function AskEcho() {
           </div>
         </div>
       </main>
+
+      {/* Footer - Quick Icons */}
+      <footer className="flex items-center justify-center space-x-8 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
+        <Link 
+          href="/drop-pin"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#ef4444' }}>
+            <div className="w-6 h-6 bg-white rounded-full"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Pin</span>
+        </Link>
+        
+        <Link 
+          href="/reminders"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f59e0b' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Remind</span>
+        </Link>
+        
+        <Link 
+          href="/notes"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--primary-blue)' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Notes</span>
+        </Link>
+        
+        <Link 
+          href="/photo-journal"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#10b981' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Camera</span>
+        </Link>
+        
+        <Link 
+          href="/settings"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#6b7280' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>More</span>
+        </Link>
+      </footer>
     </div>
   );
 }

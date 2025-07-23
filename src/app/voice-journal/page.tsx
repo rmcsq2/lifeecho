@@ -62,7 +62,7 @@ export default function VoiceJournal() {
         <div className="mb-12">
           <button
             onClick={handleMicClick}
-            className="w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative shadow-lg"
+            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative shadow-lg ${isListening ? 'animate-pulse' : ''}`}
             style={{
               backgroundColor: isActivated 
                 ? '#ef4444' 
@@ -78,7 +78,6 @@ export default function VoiceJournal() {
                 ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' 
                 : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
-            className={isListening ? 'animate-pulse' : ''}
           >
             {/* Glow Animation */}
             {isListening && (
@@ -149,7 +148,27 @@ export default function VoiceJournal() {
       </main>
 
       {/* Footer - Quick Icons */}
-      <footer className="flex items-center justify-center space-x-12 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
+      <footer className="flex items-center justify-center space-x-8 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
+        <Link 
+          href="/drop-pin"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#ef4444' }}>
+            <div className="w-6 h-6 bg-white rounded-full"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Pin</span>
+        </Link>
+        
+        <Link 
+          href="/reminders"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f59e0b' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Remind</span>
+        </Link>
+        
         <Link 
           href="/notes"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
@@ -161,13 +180,23 @@ export default function VoiceJournal() {
         </Link>
         
         <Link 
-          href="/note-history"
+          href="/photo-journal"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#8b5cf6' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#10b981' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>History</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Camera</span>
+        </Link>
+        
+        <Link 
+          href="/settings"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#6b7280' }}>
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>More</span>
         </Link>
       </footer>
     </div>
