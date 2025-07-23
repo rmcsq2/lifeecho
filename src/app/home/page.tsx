@@ -160,13 +160,13 @@ export default function Home() {
           </Link>
           
           <Link 
-            href="/transcripts"
+            href="/reminders"
             className="flex flex-col items-center space-y-2 p-3 rounded-lg transition-colors duration-200 hover:bg-accent"
           >
-            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
               <div className="w-6 h-6 bg-white rounded-sm"></div>
             </div>
-            <span className="font-canva-sans text-base text-muted-foreground">Transcripts</span>
+            <span className="font-canva-sans text-base text-muted-foreground">Remind</span>
           </Link>
           
           <Link 
