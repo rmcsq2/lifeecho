@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import VoiceSettings from './voice-settings';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -180,13 +181,41 @@ export default function Settings() {
 
           {/* Theme Settings Section */}
           <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }} className="rounded-lg shadow-sm p-6">
-            <h2 className="font-canva-sans text-xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>
-              Appearance
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-canva-sans text-xl font-bold" style={{ color: 'var(--foreground)' }}>
+                Appearance
+              </h2>
+              <Link 
+                href="/settings/appearance"
+                className="font-canva-sans text-sm font-medium transition-colors duration-200"
+                style={{ color: 'var(--primary-blue)' }}
+              >
+                Customize →
+              </Link>
+            </div>
             <div className="flex justify-between items-center">
               <span className="font-canva-sans text-base" style={{ color: 'var(--muted-foreground)' }}>Dark Theme</span>
               <ThemeToggle />
             </div>
+          </div>
+
+          {/* Voice Training Section */}
+          <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }} className="rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-canva-sans text-xl font-bold" style={{ color: 'var(--foreground)' }}>
+                Voice Training
+              </h2>
+              <Link 
+                href="/voice-trainer"
+                className="font-canva-sans text-sm font-medium transition-colors duration-200"
+                style={{ color: 'var(--primary-blue)' }}
+              >
+                Train Voice →
+              </Link>
+            </div>
+            <p className="font-canva-sans text-base" style={{ color: 'var(--muted-foreground)' }}>
+              Improve voice recognition accuracy by training in different environments
+            </p>
           </div>
 
           {/* Premium AI & Ask Echo Section */}
