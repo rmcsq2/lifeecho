@@ -28,17 +28,20 @@ export default function Home() {
     triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
+      setCurrentTranscript('');
       console.log('Echo trigger detected!');
     },
     onTranscript: (text, isFinal) => {
       setCurrentTranscript(text);
-      if (isFinal) {
-        console.log('Final transcript:', text);
+    },
+    onSubmitDetected: (finalText) => {
+      if (finalText.trim()) {
+        console.log('Home transcript submitted:', finalText);
         setTimeout(() => {
           setCurrentTranscript('');
           setIsActivated(false);
           resetTrigger();
-        }, 3000);
+        }, 1000);
       }
     },
     onStopDetected: () => {
@@ -106,7 +109,7 @@ export default function Home() {
         <div className="mb-16 text-center">
           <p className="font-canva-sans text-xl mb-4" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
-              ? `Voice activated! Say "${triggerWord} stop" to finish` 
+              ? `Voice activated! Say "${triggerWord} submit" to save` 
               : isListening 
               ? `Say "${triggerWord}" to activate` 
               : 'Tap logo or say "Echo"'

@@ -8,6 +8,7 @@ export default function VoiceJournal() {
   const [isActivated, setIsActivated] = useState(false);
   const [savedTranscripts, setSavedTranscripts] = useState<string[]>([]);
   const [triggerWord, setTriggerWord] = useState('echo');
+  const [currentTranscript, setCurrentTranscript] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -27,15 +28,23 @@ export default function VoiceJournal() {
     triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
+      setCurrentTranscript('');
       console.log('Voice Journal activated!');
     },
     onTranscript: (text, isFinal) => {
-      if (isFinal && text.trim()) {
-        setSavedTranscripts(prev => [...prev, text]);
+      setCurrentTranscript(text);
+    },
+    onSubmitDetected: (finalText) => {
+      if (finalText.trim()) {
+        setSavedTranscripts(prev => [...prev, finalText]);
+        setCurrentTranscript('');
+        setIsActivated(false);
+        console.log('Voice Journal submitted:', finalText);
       }
     },
     onStopDetected: () => {
       setIsActivated(false);
+      setCurrentTranscript('');
       console.log('Voice Journal stopped by voice command');
     }
   });
@@ -107,7 +116,7 @@ export default function VoiceJournal() {
         {/* Instruction Text */}
         <p className="font-canva-sans text-xl text-center mb-12 max-w-md" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
-            ? `Recording... say "${triggerWord} stop" to finish` 
+            ? `Recording... say "${triggerWord} submit" to save` 
             : isListening 
             ? `Say "${triggerWord}" to start recording` 
             : 'Tap mic or say "Echo" to begin'
@@ -117,7 +126,7 @@ export default function VoiceJournal() {
         {/* Live Transcription Box */}
         <div className="w-[300px] h-[120px] rounded-lg p-4 mb-8" style={{ backgroundColor: 'var(--secondary)', border: '1px solid var(--border)' }}>
           <p className="font-canva-sans text-base text-gray-600 leading-relaxed">
-            {transcript || (isActivated ? 'Listening...' : 'Your transcription will appear here...')}
+            {currentTranscript || transcript || (isActivated ? 'Listening...' : 'Your transcription will appear here...')}
           </p>
         </div>
 

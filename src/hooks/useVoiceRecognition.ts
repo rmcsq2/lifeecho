@@ -60,6 +60,7 @@ interface VoiceRecognitionOptions {
   onTranscript?: (transcript: string, isFinal: boolean) => void;
   onTriggerDetected?: () => void;
   onStopDetected?: () => void;
+  onSubmitDetected?: (finalTranscript: string) => void;
 }
 
 export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
@@ -69,7 +70,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     interimResults = true,
     onTranscript,
     onTriggerDetected,
-    onStopDetected
+    onStopDetected,
+    onSubmitDetected
   } = options;
 
   const [isListening, setIsListening] = useState(false);
@@ -80,6 +82,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isWaitingForTrigger = useRef(true);
   const shouldContinueListening = useRef(true);
+  const persistentTranscript = useRef('');
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -140,6 +143,29 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         }
         
         if (!isWaitingForTrigger.current) {
+          const submitCommands = [
+            `${triggerWord.toLowerCase()} submit`,
+            `${triggerWord.toLowerCase()}submit`,
+            'echo submit',
+            'echosubmit'
+          ];
+          
+          const hasSubmitCommand = submitCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasSubmitCommand) {
+            const finalText = persistentTranscript.current.trim();
+            if (finalText) {
+              onSubmitDetected?.(finalText);
+            }
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+          
           const stopCommands = [
             `${triggerWord.toLowerCase()} stop`,
             `${triggerWord.toLowerCase()}stop`,
@@ -154,12 +180,18 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
             isWaitingForTrigger.current = true;
             onStopDetected?.();
             setTranscript('');
+            persistentTranscript.current = '';
             recognition.stop();
             return;
           }
           
-          setTranscript(fullTranscript);
-          onTranscript?.(fullTranscript, !!finalTranscript);
+          if (finalTranscript) {
+            persistentTranscript.current += (persistentTranscript.current ? ' ' : '') + finalTranscript;
+          }
+          
+          const displayTranscript = persistentTranscript.current + (interimTranscript ? ' ' + interimTranscript : '');
+          setTranscript(displayTranscript);
+          onTranscript?.(displayTranscript, !!finalTranscript);
         }
       };
       
@@ -186,6 +218,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       isWaitingForTrigger.current = true;
       shouldContinueListening.current = true;
       setTranscript('');
+      persistentTranscript.current = '';
       setError(null);
       recognitionRef.current.start();
     } catch (e) {
@@ -199,6 +232,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       recognitionRef.current.stop();
       isWaitingForTrigger.current = true;
       setTranscript('');
+      persistentTranscript.current = '';
     }
   }, []);
 
@@ -206,6 +240,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     isWaitingForTrigger.current = true;
     shouldContinueListening.current = true;
     setTranscript('');
+    persistentTranscript.current = '';
   }, []);
 
   return {

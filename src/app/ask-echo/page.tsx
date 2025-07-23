@@ -39,12 +39,14 @@ export default function AskEcho() {
       console.log('Ask Echo activated!');
     },
     onTranscript: (text, isFinal) => {
-      if (isFinal && text.trim()) {
+    },
+    onSubmitDetected: (finalText) => {
+      if (finalText.trim()) {
         setIsActivated(false);
         setIsProcessing(true);
         setTimeout(() => {
           setIsProcessing(false);
-          setResponse(`Here's what I found about "${text}": You have several entries that might interest you. Let me gather that information for you.`);
+          setResponse(`Here's what I found about "${finalText}": You have several entries that might interest you. Let me gather that information for you.`);
           resetTrigger();
         }, 2000);
       }
@@ -135,7 +137,7 @@ export default function AskEcho() {
         {/* Status Text */}
         <p className="font-canva-sans text-xl text-center mb-8" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
-            ? `Listening... say "${triggerWord} stop" to finish` 
+            ? `Listening... say "${triggerWord} submit" to ask` 
             : isListening 
             ? `Say "${triggerWord}" then ask your question` 
             : isProcessing 
