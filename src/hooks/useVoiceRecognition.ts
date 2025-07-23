@@ -116,6 +116,10 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       recognition.onerror = (event) => {
         setError(event.error);
         setIsListening(false);
+        
+        if (event.error === 'not-allowed') {
+          shouldContinueListening.current = false;
+        }
       };
       
       recognition.onresult = (event) => {
@@ -222,7 +226,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       setError(null);
       recognitionRef.current.start();
     } catch (e) {
-      setError('Failed to start speech recognition');
+      const errorMessage = e instanceof Error ? e.message : 'Failed to start speech recognition';
+      setError(errorMessage);
     }
   }, [isSupported]);
 

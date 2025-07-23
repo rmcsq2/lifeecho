@@ -250,6 +250,11 @@ export default function PhotoJournal() {
             <p className="font-canva-sans text-sm text-red-600">
               Voice Error: {error}
             </p>
+            {error === 'not-allowed' && (
+              <p className="font-canva-sans text-xs text-red-500 mt-2">
+                Please allow microphone access in your browser settings to use voice features.
+              </p>
+            )}
           </div>
         )}
 
@@ -259,6 +264,29 @@ export default function PhotoJournal() {
             <p className="font-canva-sans text-sm text-yellow-700">
               Voice recognition not supported. Try Chrome or Edge.
             </p>
+          </div>
+        )}
+
+        {/* Microphone Permission Helper */}
+        {error === 'not-allowed' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="font-canva-sans text-sm text-blue-700 mb-3">
+              Voice features require microphone access. Click the button below to request permission:
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.mediaDevices.getUserMedia({ audio: true });
+                  startListening();
+                } catch (e) {
+                  console.log('Microphone permission denied');
+                }
+              }}
+              className="px-4 py-2 rounded-lg font-canva-sans text-white font-medium"
+              style={{ backgroundColor: '#3B6EFF' }}
+            >
+              Enable Microphone
+            </button>
           </div>
         )}
       </main>
