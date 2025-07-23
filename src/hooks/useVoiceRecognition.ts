@@ -114,21 +114,43 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         if (continuous && shouldContinueListening.current) {
           setTimeout(() => {
             try {
-              recognition.start();
+              if (recognitionRef.current && shouldContinueListening.current) {
+                recognition.start();
+              }
             } catch (e) {
               console.log('Recognition restart failed:', e);
+              if (e instanceof Error) {
+                setError(`Failed to restart voice recognition: ${e.message}`);
+              }
             }
           }, 100);
         }
       };
       
       recognition.onerror = (event) => {
-        setError(event.error);
-        setIsListening(false);
+        console.log('SpeechRecognition error:', event.error, event);
         
-        if (event.error === 'not-allowed') {
+        if (event.error === 'aborted') {
+          setError('Voice recognition was aborted. Please try again.');
+        } else if (event.error === 'audio-capture') {
+          setError('Audio capture failed. Please check your microphone.');
+        } else if (event.error === 'network') {
+          setError('Network error occurred during voice recognition.');
+        } else if (event.error === 'not-allowed') {
+          setError('Microphone access denied. Please allow microphone access and refresh the page.');
           shouldContinueListening.current = false;
+        } else if (event.error === 'service-not-allowed') {
+          setError('Speech recognition service not allowed.');
+          shouldContinueListening.current = false;
+        } else if (event.error === 'bad-grammar') {
+          setError('Speech recognition grammar error.');
+        } else if (event.error === 'language-not-supported') {
+          setError('Language not supported for speech recognition.');
+        } else {
+          setError(`Voice recognition error: ${event.error}`);
         }
+        
+        setIsListening(false);
       };
       
       recognition.onresult = (event) => {
@@ -288,7 +310,17 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       setTranscript('');
       persistentTranscript.current = '';
       setError(null);
-      recognitionRef.current.start();
+      
+      try {
+        recognitionRef.current.start();
+      } catch (startError) {
+        console.log('Recognition start failed:', startError);
+        if (startError instanceof Error) {
+          setError(`Failed to start voice recognition: ${startError.message}`);
+        } else {
+          setError('Failed to start voice recognition. Please try again.');
+        }
+      }
     } catch (e) {
       if (e instanceof Error) {
         if (e.name === 'NotAllowedError') {
