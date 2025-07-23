@@ -7,6 +7,13 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 export default function VoiceJournal() {
   const [isActivated, setIsActivated] = useState(false);
   const [savedTranscripts, setSavedTranscripts] = useState<string[]>([]);
+  const [triggerWord, setTriggerWord] = useState('echo');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+    }
+  }, []);
 
   const { 
     isListening, 
@@ -17,7 +24,7 @@ export default function VoiceJournal() {
     stopListening,
     resetTrigger 
   } = useVoiceRecognition({
-    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
       console.log('Voice Journal activated!');
@@ -25,11 +32,11 @@ export default function VoiceJournal() {
     onTranscript: (text, isFinal) => {
       if (isFinal && text.trim()) {
         setSavedTranscripts(prev => [...prev, text]);
-        setTimeout(() => {
-          setIsActivated(false);
-          resetTrigger();
-        }, 2000);
       }
+    },
+    onStopDetected: () => {
+      setIsActivated(false);
+      console.log('Voice Journal stopped by voice command');
     }
   });
 
@@ -100,9 +107,9 @@ export default function VoiceJournal() {
         {/* Instruction Text */}
         <p className="font-canva-sans text-xl text-center mb-12 max-w-md" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
-            ? 'Recording... speak your thoughts' 
+            ? `Recording... say "${triggerWord} stop" to finish` 
             : isListening 
-            ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" to start recording` 
+            ? `Say "${triggerWord}" to start recording` 
             : 'Tap mic or say "Echo" to begin'
           }
         </p>

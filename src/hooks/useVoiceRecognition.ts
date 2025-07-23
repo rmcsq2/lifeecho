@@ -59,6 +59,7 @@ interface VoiceRecognitionOptions {
   interimResults?: boolean;
   onTranscript?: (transcript: string, isFinal: boolean) => void;
   onTriggerDetected?: () => void;
+  onStopDetected?: () => void;
 }
 
 export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
@@ -67,7 +68,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     continuous = true,
     interimResults = true,
     onTranscript,
-    onTriggerDetected
+    onTriggerDetected,
+    onStopDetected
   } = options;
 
   const [isListening, setIsListening] = useState(false);
@@ -77,6 +79,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isWaitingForTrigger = useRef(true);
+  const shouldContinueListening = useRef(true);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -96,7 +99,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       
       recognition.onend = () => {
         setIsListening(false);
-        if (continuous && isWaitingForTrigger.current) {
+        if (continuous && shouldContinueListening.current) {
           setTimeout(() => {
             try {
               recognition.start();
@@ -137,6 +140,24 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         }
         
         if (!isWaitingForTrigger.current) {
+          const stopCommands = [
+            `${triggerWord.toLowerCase()} stop`,
+            `${triggerWord.toLowerCase()}stop`,
+            'echo stop',
+            'echostop'
+          ];
+          
+          const hasStopCommand = stopCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasStopCommand) {
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            recognition.stop();
+            return;
+          }
+          
           setTranscript(fullTranscript);
           onTranscript?.(fullTranscript, !!finalTranscript);
         }
@@ -153,7 +174,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         recognitionRef.current.stop();
       }
     };
-  }, [triggerWord, continuous, interimResults, onTranscript, onTriggerDetected]);
+  }, [triggerWord, continuous, interimResults, onTranscript, onTriggerDetected, onStopDetected]);
 
   const startListening = useCallback(() => {
     if (!isSupported || !recognitionRef.current) {
@@ -163,6 +184,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     
     try {
       isWaitingForTrigger.current = true;
+      shouldContinueListening.current = true;
       setTranscript('');
       setError(null);
       recognitionRef.current.start();
@@ -173,6 +195,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
+      shouldContinueListening.current = false;
       recognitionRef.current.stop();
       isWaitingForTrigger.current = true;
       setTranscript('');
@@ -181,6 +204,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
 
   const resetTrigger = useCallback(() => {
     isWaitingForTrigger.current = true;
+    shouldContinueListening.current = true;
     setTranscript('');
   }, []);
 

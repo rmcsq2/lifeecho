@@ -8,6 +8,13 @@ export default function AskEcho() {
   const [isActivated, setIsActivated] = useState(false);
   const [response, setResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [triggerWord, setTriggerWord] = useState('echo');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+    }
+  }, []);
 
   const examplePrompts = [
     "What did I write about yesterday?",
@@ -25,7 +32,7 @@ export default function AskEcho() {
     stopListening,
     resetTrigger 
   } = useVoiceRecognition({
-    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
       setResponse('');
@@ -41,6 +48,11 @@ export default function AskEcho() {
           resetTrigger();
         }, 2000);
       }
+    },
+    onStopDetected: () => {
+      setIsActivated(false);
+      setResponse('');
+      console.log('Ask Echo stopped by voice command');
     }
   });
 
@@ -123,9 +135,9 @@ export default function AskEcho() {
         {/* Status Text */}
         <p className="font-canva-sans text-xl text-center mb-8" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
-            ? 'Listening... ask me anything!' 
+            ? `Listening... say "${triggerWord} stop" to finish` 
             : isListening 
-            ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" then ask your question` 
+            ? `Say "${triggerWord}" then ask your question` 
             : isProcessing 
             ? 'Processing your question...'
             : 'Tap mic or say "Echo" to ask a question'

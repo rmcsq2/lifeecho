@@ -8,6 +8,13 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 export default function Home() {
   const [isActivated, setIsActivated] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const [triggerWord, setTriggerWord] = useState('echo');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+    }
+  }, []);
 
   const { 
     isListening, 
@@ -18,7 +25,7 @@ export default function Home() {
     stopListening,
     resetTrigger 
   } = useVoiceRecognition({
-    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
       console.log('Echo trigger detected!');
@@ -33,6 +40,11 @@ export default function Home() {
           resetTrigger();
         }, 3000);
       }
+    },
+    onStopDetected: () => {
+      setIsActivated(false);
+      setCurrentTranscript('');
+      console.log('Home voice stopped by voice command');
     }
   });
 
@@ -94,9 +106,9 @@ export default function Home() {
         <div className="mb-16 text-center">
           <p className="font-canva-sans text-xl mb-4" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
-              ? 'Listening... speak your thoughts' 
+              ? `Voice activated! Say "${triggerWord} stop" to finish` 
               : isListening 
-              ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" to activate` 
+              ? `Say "${triggerWord}" to activate` 
               : 'Tap logo or say "Echo"'
             }
           </p>
