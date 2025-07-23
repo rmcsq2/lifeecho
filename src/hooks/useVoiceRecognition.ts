@@ -105,19 +105,29 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       recognition.lang = 'en-US';
       
       recognition.onstart = () => {
+        console.log('=== SpeechRecognition STARTED ===');
+        console.log('Recognition started successfully');
         setIsListening(true);
         setError(null);
       };
       
       recognition.onend = () => {
+        console.log('=== SpeechRecognition ENDED ===');
+        console.log('Recognition ended - shouldContinueListening:', shouldContinueListening.current);
+        console.log('Recognition ended - continuous:', continuous);
         setIsListening(false);
         if (continuous && shouldContinueListening.current) {
+          console.log('Attempting to restart recognition in 100ms...');
           setTimeout(() => {
             try {
               if (recognitionRef.current && shouldContinueListening.current) {
+                console.log('Restarting recognition...');
                 recognition.start();
+              } else {
+                console.log('Skipping restart - conditions not met');
               }
             } catch (e) {
+              console.log('=== RESTART ERROR ===');
               console.log('Recognition restart failed:', e);
               if (e instanceof Error) {
                 setError(`Failed to restart voice recognition: ${e.message}`);
@@ -128,9 +138,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       };
       
       recognition.onerror = (event) => {
-        console.log('SpeechRecognition error:', event.error, event);
+        console.log('=== SpeechRecognition ERROR DETECTED ===');
+        console.log('Error type:', event.error);
+        console.log('Error event:', event);
+        console.log('Current state - isListening:', isListening);
+        console.log('Current state - shouldContinueListening:', shouldContinueListening.current);
+        console.log('Current state - isWaitingForTrigger:', isWaitingForTrigger.current);
+        console.log('==========================================');
         
         if (event.error === 'aborted') {
+          console.log('ABORT ERROR: Voice recognition was aborted - investigating cause');
           setError('Voice recognition was aborted. Please try again.');
         } else if (event.error === 'audio-capture') {
           setError('Audio capture failed. Please check your microphone.');
@@ -312,8 +329,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       setError(null);
       
       try {
+        console.log('=== ATTEMPTING TO START RECOGNITION ===');
+        console.log('Recognition state before start:', {
+          isListening: isListening,
+          shouldContinueListening: shouldContinueListening.current,
+          isWaitingForTrigger: isWaitingForTrigger.current
+        });
         recognitionRef.current.start();
+        console.log('Recognition start() called successfully');
       } catch (startError) {
+        console.log('=== START ERROR ===');
         console.log('Recognition start failed:', startError);
         if (startError instanceof Error) {
           setError(`Failed to start voice recognition: ${startError.message}`);
