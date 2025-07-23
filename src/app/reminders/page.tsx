@@ -50,10 +50,10 @@ export default function Reminders() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
           Reminders
         </h1>
       </header>
@@ -84,19 +84,25 @@ export default function Reminders() {
           {reminders.map((reminder) => (
             <div
               key={reminder.id}
-              className={`bg-white rounded-lg shadow-sm border border-gray-100 p-6 w-[90%] transition-all duration-200 ${
+              className={`rounded-lg shadow-sm p-6 w-[90%] transition-all duration-200 ${
                 reminder.completed ? 'opacity-60' : 'hover:shadow-md'
               }`}
+              style={{ 
+                backgroundColor: 'var(--card)', 
+                border: '1px solid var(--border)' 
+              }}
             >
               <div className="flex items-start space-x-4">
                 {/* Checkbox */}
                 <button
                   onClick={() => toggleReminder(reminder.id)}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-                    reminder.completed
-                      ? 'bg-green-500 border-green-500'
-                      : 'border-gray-300 hover:border-blue-500'
-                  }`}
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-200"
+                  style={{
+                    backgroundColor: reminder.completed ? 'var(--success)' : 'transparent',
+                    borderColor: reminder.completed ? 'var(--success)' : 'var(--border)'
+                  }}
+                  onMouseEnter={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--primary-blue)')}
+                  onMouseLeave={(e) => !reminder.completed && (e.currentTarget.style.borderColor = 'var(--border)')}
                 >
                   {reminder.completed && (
                     <div className="w-3 h-3 bg-white rounded-full"></div>
@@ -107,8 +113,11 @@ export default function Reminders() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className={`font-canva-sans text-xl font-bold ${
-                      reminder.completed ? 'text-gray-500 line-through' : 'text-gray-900'
-                    }`}>
+                      reminder.completed ? 'line-through' : ''
+                    }`}
+                        style={{ 
+                          color: reminder.completed ? 'var(--muted-foreground)' : 'var(--foreground)' 
+                        }}>
                       {reminder.title}
                     </h3>
                     <p className="font-canva-sans text-sm text-blue-600 font-medium">
@@ -131,7 +140,13 @@ export default function Reminders() {
       <footer className="p-8">
         <button
           onClick={handleAddReminder}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-lg font-medium py-4 px-6 rounded-lg transition-colors duration-200"
+          className="w-full font-canva-sans text-lg font-medium py-4 px-6 rounded-lg transition-colors duration-200"
+          style={{ 
+            backgroundColor: 'var(--primary-blue)', 
+            color: 'var(--primary-foreground)' 
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue)'}
         >
           + Add Reminder
         </button>

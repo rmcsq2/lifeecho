@@ -67,10 +67,10 @@ export default function AskEcho() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
           Ask Echo
         </h1>
       </header>
@@ -84,33 +84,43 @@ export default function AskEcho() {
             disabled={isProcessing}
             className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative ${
               isActivated 
-                ? 'bg-red-500 shadow-2xl scale-110' 
+                ? 'shadow-2xl scale-110' 
                 : isListening 
-                ? 'bg-blue-500 shadow-lg scale-105 animate-pulse' 
+                ? 'shadow-lg scale-105 animate-pulse' 
                 : isProcessing
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 hover:scale-105'
+                ? 'cursor-not-allowed'
+                : 'hover:scale-105'
             }`}
+            style={{
+              backgroundColor: isActivated 
+                ? '#ef4444' 
+                : isListening 
+                ? 'var(--primary-blue)' 
+                : isProcessing
+                ? 'var(--muted)'
+                : 'var(--primary-blue)'
+            }}
           >
             {/* Glow Animation */}
             {isListening && (
               <>
-                <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-75"></div>
-                <div className="absolute inset-2 rounded-full bg-blue-300 animate-ping opacity-50 animation-delay-150"></div>
+                <div className="absolute inset-0 rounded-full animate-ping opacity-75" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
+                <div className="absolute inset-2 rounded-full animate-ping opacity-50 animation-delay-150" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
               </>
             )}
             
             {/* Mic Icon */}
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center relative z-10">
-              <div className={`w-8 h-8 rounded-full ${
-                isActivated ? 'bg-red-500' : isProcessing ? 'bg-gray-400' : 'bg-blue-500'
-              }`}></div>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center relative z-10" style={{ backgroundColor: 'var(--card)' }}>
+              <div className="w-8 h-8 rounded-full"
+                   style={{
+                     backgroundColor: isActivated ? '#ef4444' : isProcessing ? 'var(--muted)' : 'var(--primary-blue)'
+                   }}></div>
             </div>
           </button>
         </div>
 
         {/* Status Text */}
-        <p className="font-canva-sans text-xl text-center text-gray-700 mb-8">
+        <p className="font-canva-sans text-xl text-center mb-8" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
             ? 'Listening... ask me anything!' 
             : isListening 
@@ -131,9 +141,9 @@ export default function AskEcho() {
         )}
 
         {/* Response Window */}
-        <div className="w-full max-w-md bg-gray-50 border border-gray-200 rounded-lg p-6 mb-12 min-h-[120px]">
+        <div className="w-full max-w-md rounded-lg p-6 mb-12 min-h-[120px]" style={{ backgroundColor: 'var(--secondary)', border: '1px solid var(--border)' }}>
           {response ? (
-            <p className="font-canva-sans text-base text-gray-700 leading-relaxed">
+            <p className="font-canva-sans text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               {response}
             </p>
           ) : (

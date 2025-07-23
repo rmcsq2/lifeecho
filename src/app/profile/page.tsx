@@ -24,10 +24,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
           Profile
         </h1>
       </header>
@@ -35,7 +35,7 @@ export default function Profile() {
       {/* Main Content */}
       <main className="flex-1 px-8">
         {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 mb-8">
+        <div className="rounded-lg shadow-sm p-8 mb-8" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
           {/* Avatar */}
           <div className="flex justify-center mb-6">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -47,7 +47,7 @@ export default function Profile() {
 
           {/* User Info */}
           <div className="text-center mb-8">
-            <h2 className="font-canva-sans text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="font-canva-sans text-2xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
               {userInfo.name}
             </h2>
             <p className="font-canva-sans text-base text-gray-600 mb-4">
@@ -100,23 +100,29 @@ export default function Profile() {
           {/* Edit Button */}
           <button
             onClick={handleEdit}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-lg font-medium py-3 px-6 rounded-lg transition-colors duration-200 mb-4"
+            className="w-full font-canva-sans text-lg font-medium py-3 px-6 rounded-lg transition-colors duration-200 mb-4"
+            style={{ 
+              backgroundColor: 'var(--primary-blue)', 
+              color: 'var(--primary-foreground)' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Edit Profile
           </button>
         </div>
 
         {/* Additional Options */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
+        <div className="rounded-lg shadow-sm p-6 mb-8" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
           <div className="space-y-4">
-            <button className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <span className="font-canva-sans text-base text-gray-700">Privacy Settings</span>
+            <button className="w-full text-left p-4 rounded-lg transition-colors duration-200 hover:bg-accent">
+              <span className="font-canva-sans text-base" style={{ color: 'var(--muted-foreground)' }}>Privacy Settings</span>
             </button>
-            <button className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <span className="font-canva-sans text-base text-gray-700">Data Export</span>
+            <button className="w-full text-left p-4 rounded-lg transition-colors duration-200 hover:bg-accent">
+              <span className="font-canva-sans text-base" style={{ color: 'var(--muted-foreground)' }}>Data Export</span>
             </button>
-            <button className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-              <span className="font-canva-sans text-base text-gray-700">Help & Support</span>
+            <button className="w-full text-left p-4 rounded-lg transition-colors duration-200 hover:bg-accent">
+              <span className="font-canva-sans text-base" style={{ color: 'var(--muted-foreground)' }}>Help & Support</span>
             </button>
           </div>
         </div>
@@ -126,7 +132,20 @@ export default function Profile() {
       <footer className="p-8">
         <button
           onClick={handleLogout}
-          className="w-full bg-transparent border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-canva-sans text-lg font-medium py-3 px-6 rounded-lg transition-all duration-200"
+          className="w-full font-canva-sans text-lg font-medium py-3 px-6 rounded-lg transition-all duration-200"
+          style={{ 
+            backgroundColor: 'transparent', 
+            border: '2px solid var(--destructive)', 
+            color: 'var(--destructive)' 
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--destructive)';
+            e.currentTarget.style.color = 'var(--destructive-foreground)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--destructive)';
+          }}
         >
           Logout
         </button>

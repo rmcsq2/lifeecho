@@ -51,15 +51,15 @@ export default function WelcomeGeneral() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-8 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 py-12" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-sm text-center">
         {/* Main Title */}
-        <h1 className="font-league-spartan text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+        <h1 className="font-league-spartan text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--foreground)' }}>
           LIFE ECHOS
         </h1>
 
         {/* Subtitle */}
-        <h2 className="font-canva-sans text-3xl text-gray-900 mb-12 leading-tight">
+        <h2 className="font-canva-sans text-3xl mb-12 leading-tight" style={{ color: 'var(--foreground)' }}>
           RECORD LIFE AS IT HAPPENS
         </h2>
 
@@ -83,7 +83,7 @@ export default function WelcomeGeneral() {
               </>
             )}
             
-            <div className="w-full h-full bg-blue-500 rounded-full flex items-center justify-center relative overflow-hidden z-10">
+            <div className="w-full h-full rounded-full flex items-center justify-center relative overflow-hidden z-10" style={{ backgroundColor: 'var(--primary-blue)' }}>
               {/* Voice Wave Pattern */}
               <div className="flex items-center justify-center space-x-1">
                 <div className="w-2 h-8 bg-white rounded-full opacity-80"></div>
@@ -102,7 +102,7 @@ export default function WelcomeGeneral() {
 
         {/* Instruction Text & Voice Status */}
         <div className="mb-16 text-center">
-          <p className="font-canva-sans text-2xl text-gray-700 mb-4 leading-relaxed">
+          <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
               ? 'Voice activated! Speak freely...' 
               : isListening 
@@ -140,7 +140,7 @@ export default function WelcomeGeneral() {
         </div>
 
         {/* Footer Tagline */}
-        <p className="font-canva-sans text-3xl font-bold text-gray-900 tracking-wide">
+        <p className="font-canva-sans text-3xl font-bold tracking-wide" style={{ color: 'var(--foreground)' }}>
           LIFE IS WHAT YOU MAKE IT
         </p>
 
@@ -148,7 +148,10 @@ export default function WelcomeGeneral() {
         <div className="mt-12">
           <Link 
             href="/home"
-            className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-colors duration-200"
+            className="inline-block text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-colors duration-200"
+            style={{ backgroundColor: 'var(--primary-blue)' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue)'}
           >
             Get Started
           </Link>

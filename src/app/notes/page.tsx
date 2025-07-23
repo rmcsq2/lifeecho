@@ -29,10 +29,10 @@ export default function Notes() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
       {/* Header */}
       <header className="pt-16 pb-8 px-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-left text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-left" style={{ color: 'var(--foreground)' }}>
           Your Notes
         </h1>
       </header>
@@ -44,10 +44,11 @@ export default function Notes() {
           {notes.map((note) => (
             <div
               key={note.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 w-[90%] hover:shadow-md transition-shadow duration-200 cursor-pointer"
+              className="rounded-lg shadow-sm p-6 w-[90%] hover:shadow-md transition-shadow duration-200 cursor-pointer"
+              style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}
             >
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-canva-sans text-xl font-bold text-gray-900">
+                <h3 className="font-canva-sans text-xl font-bold" style={{ color: 'var(--foreground)' }}>
                   {note.title}
                 </h3>
                 <div className="text-right">
@@ -66,7 +67,13 @@ export default function Notes() {
       {/* Footer Button */}
       <footer className="p-8">
         <Link href="/voice-journal">
-          <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-lg font-medium py-4 px-6 rounded-lg transition-colors duration-200">
+          <button className="w-full font-canva-sans text-lg font-medium py-4 px-6 rounded-lg transition-colors duration-200"
+                  style={{ 
+                    backgroundColor: 'var(--primary-blue)', 
+                    color: 'var(--primary-foreground)' 
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
             + New Note
           </button>
         </Link>

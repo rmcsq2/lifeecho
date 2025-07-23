@@ -59,12 +59,12 @@ export default function WelcomePremium() {
         </div>
 
         {/* Main Title */}
-        <h1 className="font-league-spartan text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+        <h1 className="font-league-spartan text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--foreground)' }}>
           LIFE ECHOS
         </h1>
 
         {/* Subtitle */}
-        <h2 className="font-canva-sans text-3xl text-gray-900 mb-12 leading-tight">
+        <h2 className="font-canva-sans text-3xl mb-12 leading-tight" style={{ color: 'var(--foreground)' }}>
           RECORD LIFE AS IT HAPPENS
         </h2>
 
@@ -113,7 +113,7 @@ export default function WelcomePremium() {
 
         {/* Instruction Text & Voice Status */}
         <div className="mb-8 text-center">
-          <p className="font-canva-sans text-2xl text-gray-700 mb-4 leading-relaxed">
+          <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
               ? 'Premium voice activated! Ask Echo anything...' 
               : isListening 
@@ -158,7 +158,7 @@ export default function WelcomePremium() {
         </div>
 
         {/* Footer Tagline */}
-        <p className="font-canva-sans text-3xl font-bold text-gray-900 tracking-wide mb-12">
+        <p className="font-canva-sans text-3xl font-bold tracking-wide mb-12" style={{ color: 'var(--foreground)' }}>
           LIFE IS WHAT YOU MAKE IT
         </p>
 
@@ -172,7 +172,13 @@ export default function WelcomePremium() {
           </Link>
           <Link 
             href="/welcome"
-            className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-canva-sans text-lg py-2 px-6 rounded-lg transition-colors duration-200"
+            className="block w-full font-canva-sans text-lg py-2 px-6 rounded-lg transition-colors duration-200"
+            style={{ 
+              backgroundColor: 'var(--secondary)', 
+              color: 'var(--muted-foreground)' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--accent)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--secondary)'}
           >
             Standard Version
           </Link>

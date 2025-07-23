@@ -11,9 +11,9 @@ export default function RootPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
       <div className="text-center">
-        <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4 animate-pulse"></div>
+        <div className="w-16 h-16 rounded-full mx-auto mb-4 animate-pulse" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
         <p className="font-canva-sans text-lg text-gray-600">Loading Life Echo...</p>
       </div>
     </div>

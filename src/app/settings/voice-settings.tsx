@@ -26,13 +26,13 @@ export default function VoiceSettings() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-      <h2 className="font-canva-sans text-xl font-bold text-gray-900 mb-4">
+    <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }} className="rounded-lg shadow-sm p-6">
+      <h2 className="font-canva-sans text-xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>
         Custom Trigger Word
       </h2>
       <div className="space-y-4">
         <div>
-          <label className="block font-canva-sans text-base text-gray-700 mb-2">
+          <label className="block font-canva-sans text-base mb-2" style={{ color: 'var(--muted-foreground)' }}>
             Your Custom Wake Word (default: "echo")
           </label>
           <input
@@ -40,19 +40,32 @@ export default function VoiceSettings() {
             value={customTriggerWord}
             onChange={(e) => setCustomTriggerWord(e.target.value)}
             placeholder="Enter custom trigger word"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg font-canva-sans text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 rounded-lg font-canva-sans text-base focus:outline-none focus:ring-2 focus:ring-ring"
+            style={{ 
+              backgroundColor: 'var(--input)', 
+              border: '1px solid var(--border)',
+              color: 'var(--foreground)'
+            }}
           />
         </div>
         <div className="flex space-x-3">
           <button
             onClick={handleSaveTriggerWord}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-base px-4 py-2 rounded-lg transition-colors duration-200"
+            className="font-canva-sans text-base px-4 py-2 rounded-lg transition-colors duration-200 hover:opacity-90"
+            style={{ 
+              backgroundColor: 'var(--primary-blue)', 
+              color: 'var(--primary-foreground)' 
+            }}
           >
             Save
           </button>
           <button
             onClick={handleResetTriggerWord}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-canva-sans text-base px-4 py-2 rounded-lg transition-colors duration-200"
+            className="font-canva-sans text-base px-4 py-2 rounded-lg transition-colors duration-200 hover:opacity-90"
+            style={{ 
+              backgroundColor: 'var(--muted)', 
+              color: 'var(--muted-foreground)' 
+            }}
           >
             Reset to Default
           </button>

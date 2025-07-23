@@ -74,10 +74,10 @@ export default function NoteHistory() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
       {/* Header */}
       <header className="pt-16 pb-8 px-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-left text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-left" style={{ color: 'var(--foreground)' }}>
           Note History
         </h1>
       </header>
@@ -90,8 +90,8 @@ export default function NoteHistory() {
               {/* Date Divider */}
               <div className="flex items-center mb-6">
                 <div className="flex-1 h-px bg-gray-300"></div>
-                <div className="px-4 py-2 bg-white rounded-full border border-gray-300">
-                  <p className="font-canva-sans text-sm font-medium text-gray-700">
+                <div className="px-4 py-2 rounded-full border border-gray-300" style={{ backgroundColor: 'var(--card)' }}>
+                  <p className="font-canva-sans text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
                     {formatDate(day.date)}
                   </p>
                 </div>
@@ -103,11 +103,15 @@ export default function NoteHistory() {
                 {day.notes.map((note) => (
                   <div
                     key={note.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200"
+                    className="rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200"
+                    style={{ 
+                      backgroundColor: 'var(--card)', 
+                      border: '1px solid var(--border)' 
+                    }}
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h3 className="font-canva-sans text-xl font-bold text-gray-900 mb-2">
+                        <h3 className="font-canva-sans text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
                           {note.title}
                         </h3>
                         <p className="font-canva-sans text-base text-gray-600 leading-relaxed">
@@ -121,7 +125,12 @@ export default function NoteHistory() {
                         {note.hasAudio && (
                           <button
                             onClick={() => handlePlayAudio(note.id)}
-                            className="w-10 h-10 bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors duration-200"
+                            className="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200"
+                            style={{ 
+                              backgroundColor: 'var(--primary-blue)',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                           >
                             <div className="w-0 h-0 border-l-[6px] border-l-white border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-1"></div>
                           </button>

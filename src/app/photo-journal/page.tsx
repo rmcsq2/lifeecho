@@ -46,10 +46,10 @@ export default function PhotoJournal() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
           Photo Journal
         </h1>
       </header>
@@ -66,10 +66,10 @@ export default function PhotoJournal() {
               {/* Placeholder for photo */}
               <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full mx-auto mb-2 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: 'var(--primary-blue)' }}>
                     <div className="w-6 h-6 bg-white rounded-sm"></div>
                   </div>
-                  <p className="font-canva-sans text-sm font-medium text-gray-700">
+                  <p className="font-canva-sans text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
                     {photo.title}
                   </p>
                   <p className="font-canva-sans text-xs text-gray-500">
@@ -101,18 +101,22 @@ export default function PhotoJournal() {
         <button
           onClick={handleCapture}
           disabled={isCapturing}
-          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${
-            isCapturing
-              ? 'bg-red-500 scale-110 animate-pulse cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 hover:scale-105'
+          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 scale-110 animate-pulse cursor-not-allowed hover:scale-105 ${
+            isCapturing ? '' : ''
           }`}
+          style={{
+            backgroundColor: isCapturing ? '#ef4444' : 'var(--primary-blue)'
+          }}
+          onMouseEnter={(e) => !isCapturing && (e.currentTarget.style.backgroundColor = '#2563eb')}
+          onMouseLeave={(e) => !isCapturing && (e.currentTarget.style.backgroundColor = 'var(--primary-blue)')}
         >
           <div className={`w-12 h-12 rounded-full ${
             isCapturing ? 'bg-white animate-pulse' : 'bg-white'
           }`}>
-            <div className={`w-full h-full rounded-full flex items-center justify-center ${
-              isCapturing ? 'bg-red-500' : 'bg-blue-500'
-            }`}>
+            <div className="w-full h-full rounded-full flex items-center justify-center"
+                 style={{
+                   backgroundColor: isCapturing ? '#ef4444' : 'var(--primary-blue)'
+                 }}>
               <div className="w-6 h-6 bg-white rounded-sm"></div>
             </div>
           </div>

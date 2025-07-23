@@ -25,10 +25,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-8 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 py-12" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-sm">
         {/* Header */}
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900 mb-12">
+        <h1 className="font-league-spartan text-4xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>
           Login
         </h1>
 
@@ -63,7 +63,13 @@ export default function Login() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            className="w-full font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            style={{ 
+              backgroundColor: 'var(--primary-blue)', 
+              color: 'var(--primary-foreground)' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Login
           </button>

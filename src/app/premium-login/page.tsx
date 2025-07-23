@@ -39,7 +39,7 @@ export default function PremiumLogin() {
         </div>
 
         {/* Header */}
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900 mb-12">
+        <h1 className="font-league-spartan text-4xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>
           Premium Login
         </h1>
 
@@ -74,7 +74,13 @@ export default function PremiumLogin() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            className="w-full font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            style={{ 
+              backgroundColor: 'var(--primary-blue)', 
+              color: 'var(--primary-foreground)' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Login
           </button>

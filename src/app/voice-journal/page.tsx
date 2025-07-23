@@ -48,10 +48,10 @@ export default function VoiceJournal() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col max-w-[864px] mx-auto">
+    <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900">
+        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
           Voice Journal
         </h1>
       </header>
@@ -62,13 +62,23 @@ export default function VoiceJournal() {
         <div className="mb-12">
           <button
             onClick={handleMicClick}
-            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative ${
-              isActivated 
-                ? 'bg-red-500 shadow-2xl scale-110' 
-                : isListening
-                ? 'bg-blue-500 shadow-lg scale-105 animate-pulse'
-                : 'bg-blue-500 hover:bg-blue-600 hover:scale-105'
-            }`}
+            className="w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative shadow-lg"
+            style={{
+              backgroundColor: isActivated 
+                ? '#ef4444' 
+                : 'var(--primary-blue)',
+              transform: isActivated 
+                ? 'scale(1.1)' 
+                : isListening 
+                ? 'scale(1.05)' 
+                : 'scale(1)',
+              boxShadow: isActivated 
+                ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' 
+                : isListening 
+                ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' 
+                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
+            className={isListening ? 'animate-pulse' : ''}
           >
             {/* Glow Animation */}
             {isListening && (
@@ -79,18 +89,17 @@ export default function VoiceJournal() {
             )}
             
             {/* Mic Icon */}
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative z-10 ${
-              isActivated ? 'bg-white' : 'bg-white'
-            }`}>
-              <div className={`w-8 h-8 rounded-full ${
-                isActivated ? 'bg-red-500' : 'bg-blue-500'
-              }`}></div>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center relative z-10" style={{ backgroundColor: 'var(--card)' }}>
+              <div className="w-8 h-8 rounded-full"
+                   style={{
+                     backgroundColor: isActivated ? '#ef4444' : 'var(--primary-blue)'
+                   }}></div>
             </div>
           </button>
         </div>
 
         {/* Instruction Text */}
-        <p className="font-canva-sans text-xl text-center text-gray-700 mb-12 max-w-md">
+        <p className="font-canva-sans text-xl text-center mb-12 max-w-md" style={{ color: 'var(--muted-foreground)' }}>
           {isActivated 
             ? 'Recording... speak your thoughts' 
             : isListening 
@@ -100,7 +109,7 @@ export default function VoiceJournal() {
         </p>
 
         {/* Live Transcription Box */}
-        <div className="w-[300px] h-[120px] bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
+        <div className="w-[300px] h-[120px] rounded-lg p-4 mb-8" style={{ backgroundColor: 'var(--secondary)', border: '1px solid var(--border)' }}>
           <p className="font-canva-sans text-base text-gray-600 leading-relaxed">
             {transcript || (isActivated ? 'Listening...' : 'Your transcription will appear here...')}
           </p>
@@ -140,25 +149,25 @@ export default function VoiceJournal() {
       </main>
 
       {/* Footer - Quick Icons */}
-      <footer className="flex items-center justify-center space-x-12 p-8 bg-gray-50 border-t border-gray-100">
+      <footer className="flex items-center justify-center space-x-12 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
         <Link 
           href="/notes"
-          className="flex flex-col items-center space-y-2 p-3 hover:bg-white rounded-lg transition-colors duration-200"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--primary-blue)' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm text-gray-700">Notes</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Notes</span>
         </Link>
         
         <Link 
           href="/note-history"
-          className="flex flex-col items-center space-y-2 p-3 hover:bg-white rounded-lg transition-colors duration-200"
+          className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#8b5cf6' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm text-gray-700">History</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>History</span>
         </Link>
       </footer>
     </div>

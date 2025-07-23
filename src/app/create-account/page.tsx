@@ -27,10 +27,10 @@ export default function CreateAccount() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-8 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 py-12" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-sm">
         {/* Header */}
-        <h1 className="font-league-spartan text-4xl font-bold text-center text-gray-900 mb-12">
+        <h1 className="font-league-spartan text-4xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>
           Create Account
         </h1>
 
@@ -78,7 +78,13 @@ export default function CreateAccount() {
           {/* Sign Up Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            className="w-full font-canva-sans text-xl font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+            style={{ 
+              backgroundColor: 'var(--primary-blue)', 
+              color: 'var(--primary-foreground)' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Sign Up
           </button>
@@ -96,7 +102,7 @@ export default function CreateAccount() {
 
         {/* Footer Logo */}
         <div className="mt-12 flex justify-center">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--primary-blue)' }}>
             <div className="w-4 h-4 bg-white rounded-full opacity-80"></div>
           </div>
         </div>
