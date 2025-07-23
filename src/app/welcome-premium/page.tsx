@@ -52,10 +52,12 @@ export default function WelcomePremium() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-8 py-12">
-      <div className="w-full max-w-sm text-center">
+      <div className="w-full text-center flex flex-col items-center">
         {/* Premium Badge */}
-        <div className="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded-full font-canva-sans text-sm font-medium mb-6">
-          ✨ PREMIUM
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded-full font-canva-sans text-sm font-medium">
+            ✨ PREMIUM
+          </div>
         </div>
 
         {/* Main Title */}
@@ -69,7 +71,7 @@ export default function WelcomePremium() {
         </h2>
 
         {/* Logo - Blue Circle with Voice Wave and Gold Accent - Voice Activated */}
-        <div className="mx-auto mb-12 relative" style={{ width: '572px', height: '572px' }}>
+        <div className="mx-auto mb-4 relative" style={{ width: '572px', height: '572px' }}>
           <button
             onClick={handleLogoClick}
             className={`w-full h-full transition-all duration-300 relative ${
@@ -99,7 +101,7 @@ export default function WelcomePremium() {
           </button>
         </div>
 
-        {/* Instruction Text & Voice Status */}
+        {/* Instruction Text - Right below logo */}
         <div className="mb-8 text-center">
           <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
@@ -109,6 +111,10 @@ export default function WelcomePremium() {
               : 'Tap logo or say "Echo" - Ask Echo anything and get a personal response'
             }
           </p>
+        </div>
+
+        {/* Voice Status */}
+        <div className="mb-8 text-center">
           
           {/* Live Transcription */}
           {(currentTranscript || isActivated) && (
@@ -139,7 +145,7 @@ export default function WelcomePremium() {
         </div>
 
         {/* Premium Features CTA */}
-        <div className="bg-blue-500 text-white p-4 rounded-lg mb-8">
+        <div className="bg-blue-500 text-white p-4 rounded-lg mb-8 text-center">
           <p className="font-canva-sans text-lg font-medium">
             Explore Premium Features
           </p>
@@ -151,16 +157,16 @@ export default function WelcomePremium() {
         </p>
 
         {/* Navigation Buttons */}
-        <div className="space-y-4">
+        <div className="space-y-4 flex flex-col items-center w-full max-w-xs">
           <Link 
             href="/home"
-            className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-all duration-200 shadow-md"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-all duration-200 shadow-md text-center"
           >
             Get Started
           </Link>
           <Link 
             href="/welcome"
-            className="block w-full font-canva-sans text-lg py-2 px-6 rounded-lg transition-colors duration-200"
+            className="w-full font-canva-sans text-lg py-2 px-6 rounded-lg transition-colors duration-200 text-center"
             style={{ 
               backgroundColor: 'var(--secondary)', 
               color: 'var(--muted-foreground)' 

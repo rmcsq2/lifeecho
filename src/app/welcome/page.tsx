@@ -59,7 +59,7 @@ export default function WelcomeGeneral() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-8 py-12" style={{ backgroundColor: 'var(--background)' }}>
-      <div className="w-full max-w-sm text-center">
+      <div className="w-full text-center flex flex-col items-center">
         {/* Main Title */}
         <h1 className="font-league-spartan text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--foreground)' }}>
           LIFE ECHOS
@@ -71,7 +71,7 @@ export default function WelcomeGeneral() {
         </h2>
 
         {/* Logo - Blue Circle with Voice Wave - Voice Activated */}
-        <div className="mx-auto mb-12 relative" style={{ width: '572px', height: '572px' }}>
+        <div className="mx-auto mb-4 relative" style={{ width: '572px', height: '572px' }}>
           <button
             onClick={handleLogoClick}
             className={`w-full h-full transition-all duration-300 relative ${
@@ -101,8 +101,8 @@ export default function WelcomeGeneral() {
           </button>
         </div>
 
-        {/* Instruction Text & Voice Status */}
-        <div className="mb-16 text-center">
+        {/* Instruction Text - Right below logo */}
+        <div className="mb-8 text-center">
           <p className="font-canva-sans text-2xl mb-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {isActivated 
               ? 'Voice activated! Speak freely...' 
@@ -111,6 +111,10 @@ export default function WelcomeGeneral() {
               : 'Tap logo or say "Echo" for hands free use'
             }
           </p>
+        </div>
+
+        {/* Voice Status */}
+        <div className="mb-16 text-center">
           
           {/* Live Transcription */}
           {(currentTranscript || isActivated) && (
@@ -146,10 +150,10 @@ export default function WelcomeGeneral() {
         </p>
 
         {/* Navigation Button */}
-        <div className="mt-12">
+        <div className="mt-12 flex justify-center">
           <Link 
             href="/home"
-            className="inline-block text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-colors duration-200"
+            className="text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-colors duration-200"
             style={{ backgroundColor: 'var(--primary-blue)' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue-hover)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-blue)'}
