@@ -89,29 +89,29 @@ export default function VoiceJournal() {
             <h1 className="font-league-spartan text-4xl font-bold text-black mb-2">
               LIFE ECHOS
             </h1>
-            <h2 className="font-league-spartan text-xl font-medium mb-4" style={{ color: '#4E4B4B' }}>
+            <h2 className="font-league-spartan text-xl font-medium" style={{ color: '#4E4B4B' }}>
               FULL NOTES
             </h2>
-            
-            {/* Life Echo Logo - Right below "FULL NOTES" */}
-            <div className="flex justify-center">
-              <div className={`relative transition-all duration-300 ${
-                isListening ? 'animate-pulse' : ''
-              }`} style={{ width: '572px', height: '572px' }}>
-                <Image
-                  src="/life-echo-logo.png"
-                  alt="Life Echo Logo"
-                  width={572}
-                  height={572}
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
           </div>
           
           {/* Spacer for alignment */}
           <div className="w-8"></div>
+        </div>
+        
+        {/* Life Echo Logo - Middle between "FULL NOTES" and "Say Echo to Dictate" */}
+        <div className="flex justify-center my-6">
+          <div className={`relative transition-all duration-300 ${
+            isListening ? 'animate-pulse' : ''
+          }`} style={{ width: '572px', height: '572px' }}>
+            <Image
+              src="/life-echo-logo.png"
+              alt="Life Echo Logo"
+              width={572}
+              height={572}
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
         
         {/* Voice Activation Text */}
