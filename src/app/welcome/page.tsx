@@ -8,6 +8,13 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 export default function WelcomeGeneral() {
   const [isActivated, setIsActivated] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const [triggerWord, setTriggerWord] = useState('echo');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+    }
+  }, []);
 
   const { 
     isListening, 
@@ -18,7 +25,7 @@ export default function WelcomeGeneral() {
     stopListening,
     resetTrigger 
   } = useVoiceRecognition({
-    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    triggerWord: triggerWord,
     onTriggerDetected: () => {
       setIsActivated(true);
       console.log('Welcome screen activated!');
@@ -106,7 +113,7 @@ export default function WelcomeGeneral() {
             {isActivated 
               ? 'Voice activated! Speak freely...' 
               : isListening 
-              ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" or your custom trigger word for hands free use` 
+              ? `Say "${triggerWord}" or your custom trigger word for hands free use` 
               : 'Tap logo or say "Echo" for hands free use'
             }
           </p>
