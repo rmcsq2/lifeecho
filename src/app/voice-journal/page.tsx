@@ -100,7 +100,7 @@ export default function VoiceJournal() {
         
         {/* Voice Activation Section */}
         <div className="text-center mt-8">
-          <p className="font-canva-sans text-lg font-medium mb-6" style={{ color: '#4E4B4B' }}>
+          <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B', marginBottom: '10px' }}>
             Say 'Echo' to Dictate Notes
           </p>
           
