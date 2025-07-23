@@ -27,8 +27,8 @@ export default function Profile() {
     <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--secondary)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
-          Profile
+        <h1 className="font-league-spartan text-4xl font-bold text-left" style={{ color: 'var(--foreground)' }}>
+          LIFE ECHOS
         </h1>
       </header>
 

@@ -16,8 +16,8 @@ export default function DropPin() {
     <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="pt-16 pb-8">
-        <h1 className="font-league-spartan text-4xl font-bold text-center" style={{ color: 'var(--foreground)' }}>
-          Drop a Pin
+        <h1 className="font-league-spartan text-4xl font-bold text-left" style={{ color: 'var(--foreground)' }}>
+          LIFE ECHOS
         </h1>
       </header>
 

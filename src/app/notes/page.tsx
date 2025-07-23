@@ -31,7 +31,7 @@ export default function Notes() {
       {/* Header */}
       <header className="pt-16 pb-8 px-8">
         <h1 className="font-league-spartan text-4xl font-bold text-left" style={{ color: 'var(--foreground)' }}>
-          Your Notes
+          LIFE ECHOS
         </h1>
       </header>
 
