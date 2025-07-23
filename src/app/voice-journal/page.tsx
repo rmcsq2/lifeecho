@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 
 export default function VoiceJournal() {
   const [isActivated, setIsActivated] = useState(false);
@@ -36,10 +37,11 @@ export default function VoiceJournal() {
     },
     onSubmitDetected: (finalText) => {
       if (finalText.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
         setSavedTranscripts(prev => [...prev, finalText]);
         setCurrentTranscript('');
         setIsActivated(false);
-        console.log('Voice Journal submitted:', finalText);
+        console.log('Voice Journal submitted:', savedNote);
       }
     },
     onStopDetected: () => {
