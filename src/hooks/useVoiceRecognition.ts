@@ -99,10 +99,13 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     if (SpeechRecognition) {
       setIsSupported(true);
       
-      const recognition = new SpeechRecognition();
-      recognition.continuous = continuous;
-      recognition.interimResults = interimResults;
-      recognition.lang = 'en-US';
+      try {
+        console.log('=== INITIALIZING SpeechRecognition ===');
+        const recognition = new SpeechRecognition();
+        recognition.continuous = continuous;
+        recognition.interimResults = interimResults;
+        recognition.lang = 'en-US';
+        console.log('SpeechRecognition initialized successfully');
       
       recognition.onstart = () => {
         console.log('=== SpeechRecognition STARTED ===');
@@ -300,7 +303,17 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         }
       };
       
-      recognitionRef.current = recognition;
+        recognitionRef.current = recognition;
+      } catch (initError) {
+        console.log('=== RECOGNITION INITIALIZATION ERROR ===');
+        console.log('Failed to initialize SpeechRecognition:', initError);
+        setIsSupported(false);
+        if (initError instanceof Error) {
+          setError(`Speech recognition initialization failed: ${initError.message}`);
+        } else {
+          setError('Speech recognition initialization failed');
+        }
+      }
     } else {
       setIsSupported(false);
       setError('Speech recognition not supported in this browser');
@@ -308,7 +321,12 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          console.log('=== CLEANING UP SpeechRecognition ===');
+          recognitionRef.current.stop();
+        } catch (cleanupError) {
+          console.log('Error during recognition cleanup:', cleanupError);
+        }
       }
     };
   }, [triggerWord, continuous, interimResults, onTranscript, onTriggerDetected, onStopDetected]);
@@ -333,15 +351,37 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         console.log('Recognition state before start:', {
           isListening: isListening,
           shouldContinueListening: shouldContinueListening.current,
-          isWaitingForTrigger: isWaitingForTrigger.current
+          isWaitingForTrigger: isWaitingForTrigger.current,
+          recognitionExists: !!recognitionRef.current
         });
+        
+        if (isListening) {
+          console.log('Recognition already running, stopping first to prevent abort error');
+          recognitionRef.current.stop();
+          await new Promise(resolve => setTimeout(resolve, 200)); // Wait for stop to complete
+        }
+        
         recognitionRef.current.start();
         console.log('Recognition start() called successfully');
       } catch (startError) {
         console.log('=== START ERROR ===');
         console.log('Recognition start failed:', startError);
+        
         if (startError instanceof Error) {
-          setError(`Failed to start voice recognition: ${startError.message}`);
+          if (startError.message.includes('already started') || startError.message.includes('aborted')) {
+            console.log('Detected recognition already started or aborted, attempting restart');
+            try {
+              recognitionRef.current.stop();
+              await new Promise(resolve => setTimeout(resolve, 300));
+              recognitionRef.current.start();
+              console.log('Recognition restarted successfully after abort/already-started error');
+            } catch (retryError) {
+              console.log('Retry after abort failed:', retryError);
+              setError('Voice recognition was aborted. Please try again.');
+            }
+          } else {
+            setError(`Failed to start voice recognition: ${startError.message}`);
+          }
         } else {
           setError('Failed to start voice recognition. Please try again.');
         }
