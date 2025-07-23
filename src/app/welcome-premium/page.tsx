@@ -51,10 +51,10 @@ export default function WelcomePremium() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-yellow-50 flex flex-col items-center justify-center px-8 py-12">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-8 py-12">
       <div className="w-full max-w-sm text-center">
         {/* Premium Badge */}
-        <div className="inline-flex items-center bg-gradient-to-r from-blue-500 to-yellow-500 text-white px-4 py-2 rounded-full font-canva-sans text-sm font-medium mb-6">
+        <div className="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded-full font-canva-sans text-sm font-medium mb-6">
           ✨ PREMIUM
         </div>
 
@@ -80,14 +80,11 @@ export default function WelcomePremium() {
                 : 'hover:scale-105'
             }`}
           >
-            {/* Premium glow effect */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-yellow-400 rounded-full opacity-20 animate-pulse"></div>
-            
             {/* Voice activation glow */}
             {isListening && (
               <>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-yellow-400 animate-ping opacity-75 blur-sm"></div>
-                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-blue-300 to-yellow-300 animate-ping opacity-50 animation-delay-150 blur-sm"></div>
+                <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-75 blur-sm"></div>
+                <div className="absolute inset-4 rounded-full bg-blue-300 animate-ping opacity-50 animation-delay-150 blur-sm"></div>
               </>
             )}
             
@@ -115,7 +112,7 @@ export default function WelcomePremium() {
           
           {/* Live Transcription */}
           {(currentTranscript || isActivated) && (
-            <div className="bg-gradient-to-r from-blue-50 to-yellow-50 border border-blue-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
               <p className="font-canva-sans text-base text-blue-800">
                 {currentTranscript || 'Premium listening mode active...'}
               </p>
@@ -142,7 +139,7 @@ export default function WelcomePremium() {
         </div>
 
         {/* Premium Features CTA */}
-        <div className="bg-gradient-to-r from-blue-500 to-yellow-500 text-white p-4 rounded-lg mb-8">
+        <div className="bg-blue-500 text-white p-4 rounded-lg mb-8">
           <p className="font-canva-sans text-lg font-medium">
             Explore Premium Features
           </p>
@@ -157,7 +154,7 @@ export default function WelcomePremium() {
         <div className="space-y-4">
           <Link 
             href="/home"
-            className="block w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-all duration-200 shadow-md"
+            className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-canva-sans text-xl font-medium py-3 px-8 rounded-lg transition-all duration-200 shadow-md"
           >
             Get Started
           </Link>
