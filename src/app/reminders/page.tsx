@@ -105,10 +105,19 @@ export default function Reminders() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--destructive)', border: '1px solid var(--border)' }}>
-            <p className="font-canva-sans text-sm text-center" style={{ color: 'var(--destructive-foreground)' }}>
-              Voice Error: {error}
+          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200">
+            <p className="font-canva-sans text-sm text-center mb-3 text-red-600">
+              {error}
             </p>
+            {(error.includes('Microphone') || error.includes('microphone')) && (
+              <button
+                onClick={startListening}
+                className="w-full py-2 px-4 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-white"
+                style={{ backgroundColor: 'var(--primary-blue)' }}
+              >
+                Try Again
+              </button>
+            )}
           </div>
         )}
 

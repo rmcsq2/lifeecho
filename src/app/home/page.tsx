@@ -130,10 +130,19 @@ export default function Home() {
           
           {/* Error Display */}
           {error && (
-            <div className="rounded-lg p-4 mt-4 max-w-md mx-auto" style={{ backgroundColor: 'var(--destructive)', border: '1px solid var(--border)' }}>
-              <p className="font-canva-sans text-sm" style={{ color: 'var(--destructive-foreground)' }}>
-                Voice Error: {error}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 max-w-md mx-auto">
+              <p className="font-canva-sans text-sm text-red-600 text-center mb-3">
+                {error}
               </p>
+              {(error.includes('Microphone') || error.includes('microphone')) && (
+                <button
+                  onClick={startListening}
+                  className="w-full py-2 px-4 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-white"
+                  style={{ backgroundColor: 'var(--primary-blue)' }}
+                >
+                  Try Again
+                </button>
+              )}
             </div>
           )}
           

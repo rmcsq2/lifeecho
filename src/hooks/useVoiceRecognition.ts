@@ -292,12 +292,18 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     } catch (e) {
       if (e instanceof Error) {
         if (e.name === 'NotAllowedError') {
-          setError('not-allowed');
+          setError('Microphone access denied. Please allow microphone access and refresh the page.');
+        } else if (e.name === 'NotFoundError') {
+          setError('No microphone found. Please connect a microphone and try again.');
+        } else if (e.name === 'NotReadableError') {
+          setError('Microphone is being used by another application. Please close other apps and try again.');
+        } else if (e.name === 'OverconstrainedError') {
+          setError('Microphone constraints not supported. Please try a different microphone.');
         } else {
-          setError(e.message);
+          setError(`Microphone error: ${e.message}`);
         }
       } else {
-        setError('Failed to start speech recognition');
+        setError('Failed to access microphone. Please check your device settings.');
       }
     }
   }, [isSupported]);
@@ -337,6 +343,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     startListening,
     stopListening,
     resetTrigger,
+    retryMicrophone: startListening,
     isWaitingForTrigger: isWaitingForTrigger.current
   };
 };

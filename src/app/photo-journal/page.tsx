@@ -266,18 +266,17 @@ export default function PhotoJournal() {
         {/* Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="font-canva-sans text-sm text-red-600">
-              Voice Error: {error}
+            <p className="font-canva-sans text-sm text-red-600 text-center mb-3">
+              {error}
             </p>
-            {error === 'not-allowed' && (
-              <p className="font-canva-sans text-xs text-red-500 mt-2">
-                Please allow microphone access in your browser settings to use voice features.
-              </p>
-            )}
-            {error === 'Requested device not found' && (
-              <p className="font-canva-sans text-xs text-red-500 mt-2">
-                No microphone detected. Please connect a microphone to use voice features.
-              </p>
+            {(error.includes('Microphone') || error.includes('microphone')) && (
+              <button
+                onClick={startListening}
+                className="w-full py-2 px-4 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-white"
+                style={{ backgroundColor: 'var(--primary-blue)' }}
+              >
+                Try Again
+              </button>
             )}
           </div>
         )}
