@@ -97,30 +97,30 @@ export default function VoiceJournal() {
           {/* Spacer for alignment */}
           <div className="w-8"></div>
         </div>
-        
-        {/* Life Echo Logo - Middle between "FULL NOTES" and "Say Echo to Dictate" */}
-        <div className="flex justify-center my-6">
-          <div className={`relative transition-all duration-300 ${
-            isListening ? 'animate-pulse' : ''
-          }`} style={{ width: '572px', height: '572px' }}>
-            <Image
-              src="/life-echo-logo.png"
-              alt="Life Echo Logo"
-              width={572}
-              height={572}
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-        
-        {/* Voice Activation Text */}
-        <div className="text-center">
-          <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B', marginBottom: '10px' }}>
-            Say 'Echo' to Dictate Notes
-          </p>
-        </div>
       </header>
+
+      {/* Life Echo Logo - Middle between "FULL NOTES" and "Say Echo to Dictate" */}
+      <div className="flex justify-center my-6 px-8">
+        <div className={`relative transition-all duration-300 ${
+          isListening ? 'animate-pulse' : ''
+        }`} style={{ width: '572px', height: '572px' }}>
+          <Image
+            src="/life-echo-logo.png"
+            alt="Life Echo Logo"
+            width={572}
+            height={572}
+            className="object-contain"
+            priority
+          />
+        </div>
+      </div>
+      
+      {/* Voice Activation Text */}
+      <div className="text-center px-8 mb-6">
+        <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B' }}>
+          Say 'Echo' to Dictate Notes
+        </p>
+      </div>
 
       {/* Main Content */}
       <main className="flex-1 px-8">
