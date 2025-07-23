@@ -61,6 +61,8 @@ interface VoiceRecognitionOptions {
   onTriggerDetected?: () => void;
   onStopDetected?: () => void;
   onSubmitDetected?: (finalTranscript: string) => void;
+  onAutoSave?: (transcript: string) => void;
+  autoSaveDelay?: number;
 }
 
 export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
@@ -71,7 +73,9 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onTranscript,
     onTriggerDetected,
     onStopDetected,
-    onSubmitDetected
+    onSubmitDetected,
+    onAutoSave,
+    autoSaveDelay = 5000
   } = options;
 
   const [isListening, setIsListening] = useState(false);
@@ -83,6 +87,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
   const isWaitingForTrigger = useRef(true);
   const shouldContinueListening = useRef(true);
   const persistentTranscript = useRef('');
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -191,6 +196,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           
           if (finalTranscript) {
             persistentTranscript.current += (persistentTranscript.current ? ' ' : '') + finalTranscript;
+            
+            if (autoSaveTimeoutRef.current) {
+              clearTimeout(autoSaveTimeoutRef.current);
+            }
+            
+            if (onAutoSave && persistentTranscript.current.trim()) {
+              autoSaveTimeoutRef.current = setTimeout(() => {
+                onAutoSave(persistentTranscript.current.trim());
+              }, autoSaveDelay);
+            }
           }
           
           const displayTranscript = persistentTranscript.current + (interimTranscript ? ' ' + interimTranscript : '');
@@ -247,6 +262,11 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       isWaitingForTrigger.current = true;
       setTranscript('');
       persistentTranscript.current = '';
+      
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
     }
   }, []);
 
@@ -255,6 +275,11 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     shouldContinueListening.current = true;
     setTranscript('');
     persistentTranscript.current = '';
+    
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+      autoSaveTimeoutRef.current = null;
+    }
   }, []);
 
   return {

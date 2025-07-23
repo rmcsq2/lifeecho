@@ -11,8 +11,6 @@ export default function VoiceJournal() {
   const [savedTranscripts, setSavedTranscripts] = useState<string[]>([]);
   const [triggerWord, setTriggerWord] = useState('echo');
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -20,31 +18,12 @@ export default function VoiceJournal() {
     }
   }, []);
 
-  const startAutoSaveTimer = () => {
-    if (autoSaveTimerRef.current) {
-      clearTimeout(autoSaveTimerRef.current);
-    }
-    autoSaveTimerRef.current = setTimeout(() => {
-      if (currentTranscript.trim()) {
-        handleSubmit();
-      }
-    }, 10000); // 10 seconds
-  };
-
-  const clearAutoSaveTimer = () => {
-    if (autoSaveTimerRef.current) {
-      clearTimeout(autoSaveTimerRef.current);
-      autoSaveTimerRef.current = null;
-    }
-  };
-
   const handleSubmit = () => {
     if (currentTranscript.trim()) {
       const savedNote = voiceNoteStorage.saveVoiceNote(currentTranscript);
       setSavedTranscripts(prev => [...prev, currentTranscript]);
       setCurrentTranscript('');
       setIsActivated(false);
-      clearAutoSaveTimer();
       console.log('Voice Journal submitted:', savedNote);
     }
   };
@@ -66,13 +45,16 @@ export default function VoiceJournal() {
     },
     onTranscript: (text, isFinal) => {
       setCurrentTranscript(text);
-      if (text.trim() && isActivated) {
-        startAutoSaveTimer();
-      }
+    },
+    onAutoSave: (text) => {
+      console.log('Auto-saving voice journal after 5 seconds of silence:', text);
+      const savedNote = voiceNoteStorage.saveVoiceNote(text);
+      setSavedTranscripts(prev => [...prev, text]);
+      setCurrentTranscript('');
+      setIsActivated(false);
     },
     onSubmitDetected: (finalText) => {
       if (finalText.trim()) {
-        clearAutoSaveTimer();
         const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
         setSavedTranscripts(prev => [...prev, finalText]);
         setCurrentTranscript('');
@@ -83,7 +65,6 @@ export default function VoiceJournal() {
     onStopDetected: () => {
       setIsActivated(false);
       setCurrentTranscript('');
-      clearAutoSaveTimer();
       console.log('Voice Journal stopped by voice command');
     }
   });
@@ -94,13 +75,6 @@ export default function VoiceJournal() {
     }
   }, [isSupported, startListening]);
 
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col max-w-[864px] mx-auto" style={{ backgroundColor: '#F5F5F5' }}>
@@ -177,7 +151,7 @@ export default function VoiceJournal() {
         
         {/* Auto-Save Note */}
         <p className="font-canva-sans text-sm text-gray-400 mb-8">
-          Notes will save automatically if submit button is not pressed after 10 sec pause.
+          Notes will save automatically if submit button is not pressed after 5 sec pause.
         </p>
 
         {/* Error Display */}

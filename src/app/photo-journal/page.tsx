@@ -107,7 +107,12 @@ export default function PhotoJournal() {
           setDictatedNotes(prev => prev ? `${prev} ${text}` : text);
         }
       }
-    }
+    },
+    onAutoSave: (text) => {
+      console.log('Auto-saving notes after 5 seconds of silence:', text);
+      setDictatedNotes(text);
+    },
+    autoSaveDelay: 5000
   });
 
   useEffect(() => {
@@ -255,6 +260,11 @@ export default function PhotoJournal() {
                 Please allow microphone access in your browser settings to use voice features.
               </p>
             )}
+            {error === 'Requested device not found' && (
+              <p className="font-canva-sans text-xs text-red-500 mt-2">
+                No microphone detected. Please connect a microphone to use voice features.
+              </p>
+            )}
           </div>
         )}
 
@@ -267,21 +277,12 @@ export default function PhotoJournal() {
           </div>
         )}
 
-        {/* Microphone Permission Helper */}
-        {error === 'not-allowed' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="font-canva-sans text-sm text-blue-700 mb-3">
-              Voice features require microphone access. Click the button below to request permission:
+        {/* Device Not Found Helper */}
+        {error === 'Requested device not found' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="font-canva-sans text-sm text-yellow-700 mb-3">
+              Voice features will work when a microphone is available. The camera functionality still works normally.
             </p>
-            <button
-              onClick={() => {
-                startListening();
-              }}
-              className="px-4 py-2 rounded-lg font-canva-sans text-white font-medium"
-              style={{ backgroundColor: '#3B6EFF' }}
-            >
-              Enable Microphone
-            </button>
           </div>
         )}
       </main>
