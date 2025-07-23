@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 export default function AskEcho() {
@@ -97,39 +98,25 @@ export default function AskEcho() {
           <button
             onClick={handleMicClick}
             disabled={isProcessing}
-            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 relative ${
+            className={`w-32 h-32 flex items-center justify-center transition-all duration-300 relative ${
               isActivated 
-                ? 'shadow-2xl scale-110' 
+                ? 'scale-110' 
                 : isListening 
-                ? 'shadow-lg scale-105 animate-pulse' 
+                ? 'scale-105 animate-pulse' 
                 : isProcessing
                 ? 'cursor-not-allowed'
                 : 'hover:scale-105'
             }`}
-            style={{
-              backgroundColor: isActivated 
-                ? '#ef4444' 
-                : isListening 
-                ? 'var(--primary-blue)' 
-                : isProcessing
-                ? 'var(--muted)'
-                : 'var(--primary-blue)'
-            }}
           >
-            {/* Glow Animation */}
-            {isListening && (
-              <>
-                <div className="absolute inset-0 rounded-full animate-ping opacity-75" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
-                <div className="absolute inset-2 rounded-full animate-ping opacity-50 animation-delay-150" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
-              </>
-            )}
-            
-            {/* Mic Icon */}
-            <div className="w-16 h-16 rounded-full flex items-center justify-center relative z-10" style={{ backgroundColor: 'var(--card)' }}>
-              <div className="w-8 h-8 rounded-full"
-                   style={{
-                     backgroundColor: isActivated ? '#ef4444' : isProcessing ? 'var(--muted)' : 'var(--primary-blue)'
-                   }}></div>
+            {/* Logo Image */}
+            <div className="w-full h-full relative">
+              <Image
+                src="/logo.png"
+                alt="Life Echo Logo - Voice Activated"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
           </button>
         </div>

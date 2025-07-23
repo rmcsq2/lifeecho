@@ -105,7 +105,9 @@ export default function VoiceJournal() {
           </p>
           
           {/* Voice Wave Logo */}
-          <div className="w-16 h-16 relative">
+          <div className={`w-16 h-16 relative transition-all duration-300 ${
+            isListening ? 'animate-pulse' : ''
+          }`}>
             <Image
               src="/logo.png"
               alt="Voice Wave Logo"

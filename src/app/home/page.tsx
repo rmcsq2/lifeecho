@@ -72,28 +72,20 @@ export default function Home() {
          }}>
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-8 py-16">
-        {/* Blue Circle with Logo - 40% screen width */}
+        {/* Logo - 40% screen width */}
         <div className="relative mb-16 w-[40%] aspect-square max-w-[300px] min-w-[200px]">
           <button
             onClick={handleVoiceActivation}
-            className={`w-full h-full rounded-full flex items-center justify-center transition-all duration-300 relative overflow-hidden ${
+            className={`w-full h-full flex items-center justify-center transition-all duration-300 relative ${
               isActivated 
-                ? 'shadow-2xl scale-110' 
+                ? 'scale-110' 
                 : isListening 
-                ? 'shadow-lg scale-105 animate-pulse' 
+                ? 'scale-105 animate-pulse' 
                 : 'hover:scale-102'
             }`}
           >
-            {/* Glow Animation Rings */}
-            {isListening && (
-              <>
-                <div className="absolute inset-0 rounded-full animate-ping opacity-75" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
-                <div className="absolute inset-2 rounded-full animate-ping opacity-50 animation-delay-150" style={{ backgroundColor: 'var(--primary-blue)' }}></div>
-              </>
-            )}
-            
             {/* Logo Image */}
-            <div className="w-full h-full relative z-10">
+            <div className="w-full h-full relative">
               <Image
                 src="/logo.png"
                 alt="Life Echo Logo - Voice Activated"
