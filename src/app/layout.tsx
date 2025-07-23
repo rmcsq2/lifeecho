@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const leagueSpartan = League_Spartan({
   variable: "--font-league-spartan",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
 });
 
 export const metadata: Metadata = {
