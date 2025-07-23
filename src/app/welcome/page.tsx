@@ -71,7 +71,7 @@ export default function WelcomeGeneral() {
         </h2>
 
         {/* Logo - Blue Circle with Voice Wave - Voice Activated */}
-        <div className="mx-auto mb-4 relative" style={{ width: '1716px', height: '1716px' }}>
+        <div className="mx-auto mb-4 relative" style={{ width: '572px', height: '572px' }}>
           <button
             onClick={handleLogoClick}
             className={`w-full h-full transition-all duration-300 relative ${
@@ -93,8 +93,8 @@ export default function WelcomeGeneral() {
             <Image
               src="/life-echo-logo.png"
               alt="Life Echo Logo"
-              width={1716}
-              height={1716}
+              width={572}
+              height={572}
               className="w-full h-full object-contain z-10 relative"
               priority
             />
