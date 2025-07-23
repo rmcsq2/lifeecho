@@ -221,11 +221,7 @@ export default function PhotoJournal() {
         {/* Notes Section */}
         <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200">
           <p className="font-canva-sans text-base text-black leading-relaxed">
-            {dictatedNotes || (
-              <span style={{ color: '#888888' }}>
-                Dictated notes will appear here
-              </span>
-            )}
+            {transcript || dictatedNotes || ''}
           </p>
         </div>
 
