@@ -215,7 +215,7 @@ export default function AskEcho() {
       </main>
 
       {/* Footer - Quick Icons */}
-      <footer className="flex items-center justify-center space-x-8 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
+      <footer className="flex items-center justify-center space-x-4 p-8 border-t" style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--border)' }}>
         <Link 
           href="/drop-pin"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"

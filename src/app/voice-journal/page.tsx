@@ -188,7 +188,7 @@ export default function VoiceJournal() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <footer className="flex items-center justify-center space-x-12 p-6 bg-white border-t border-gray-200">
+      <footer className="flex items-center justify-center space-x-6 p-6 bg-white border-t border-gray-200">
         <Link 
           href="/drop-pin"
           className="flex flex-col items-center space-y-1"
