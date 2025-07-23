@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 
 export default function Home() {
   const [isActivated, setIsActivated] = useState(false);
@@ -34,9 +35,19 @@ export default function Home() {
     onTranscript: (text, isFinal) => {
       setCurrentTranscript(text);
     },
+    onAutoSave: (text) => {
+      console.log('Auto-saving home notes after 5 seconds of silence:', text);
+      if (text.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(text);
+        console.log('Home note saved:', savedNote);
+      }
+      setCurrentTranscript('');
+      setIsActivated(false);
+    },
     onSubmitDetected: (finalText) => {
       if (finalText.trim()) {
-        console.log('Home transcript submitted:', finalText);
+        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
+        console.log('Home transcript submitted:', savedNote);
         setTimeout(() => {
           setCurrentTranscript('');
           setIsActivated(false);

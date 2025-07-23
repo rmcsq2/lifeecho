@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 
 export default function AskEcho() {
   const [isActivated, setIsActivated] = useState(false);
@@ -41,8 +42,17 @@ export default function AskEcho() {
     },
     onTranscript: (text, isFinal) => {
     },
+    onAutoSave: (text) => {
+      console.log('Auto-saving ask echo notes after 5 seconds of silence:', text);
+      if (text.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(text);
+        console.log('Ask Echo note saved:', savedNote);
+      }
+    },
     onSubmitDetected: (finalText) => {
       if (finalText.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
+        console.log('Ask Echo note submitted:', savedNote);
         setIsActivated(false);
         setIsProcessing(true);
         setTimeout(() => {

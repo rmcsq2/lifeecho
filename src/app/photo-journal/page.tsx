@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 
 export default function PhotoJournal() {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
@@ -109,8 +110,23 @@ export default function PhotoJournal() {
       }
     },
     onAutoSave: (text) => {
-      console.log('Auto-saving notes after 5 seconds of silence:', text);
-      setDictatedNotes(text);
+      console.log('Auto-saving photo journal notes after 5 seconds of silence:', text);
+      if (text.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(text);
+        console.log('Photo journal note saved:', savedNote);
+      }
+      setDictatedNotes('');
+    },
+    onSubmitDetected: (finalText) => {
+      if (finalText.trim()) {
+        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
+        console.log('Photo journal note submitted:', savedNote);
+        setDictatedNotes('');
+      }
+    },
+    onStopDetected: () => {
+      setDictatedNotes('');
+      console.log('Photo journal voice stopped by voice command');
     },
     autoSaveDelay: 5000
   });
