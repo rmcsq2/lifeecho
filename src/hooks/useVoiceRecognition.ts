@@ -212,13 +212,15 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     };
   }, [triggerWord, continuous, interimResults, onTranscript, onTriggerDetected, onStopDetected]);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (!isSupported || !recognitionRef.current) {
       setError('Speech recognition not available');
       return;
     }
     
     try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      
       isWaitingForTrigger.current = true;
       shouldContinueListening.current = true;
       setTranscript('');
@@ -226,8 +228,15 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       setError(null);
       recognitionRef.current.start();
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to start speech recognition';
-      setError(errorMessage);
+      if (e instanceof Error) {
+        if (e.name === 'NotAllowedError') {
+          setError('not-allowed');
+        } else {
+          setError(e.message);
+        }
+      } else {
+        setError('Failed to start speech recognition');
+      }
     }
   }, [isSupported]);
 

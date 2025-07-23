@@ -274,13 +274,8 @@ export default function PhotoJournal() {
               Voice features require microphone access. Click the button below to request permission:
             </p>
             <button
-              onClick={async () => {
-                try {
-                  await navigator.mediaDevices.getUserMedia({ audio: true });
-                  startListening();
-                } catch (e) {
-                  console.log('Microphone permission denied');
-                }
+              onClick={() => {
+                startListening();
               }}
               className="px-4 py-2 rounded-lg font-canva-sans text-white font-medium"
               style={{ backgroundColor: '#3B6EFF' }}
