@@ -65,6 +65,8 @@ interface VoiceRecognitionOptions {
   onReminderDetected?: (text: string) => void;
   onTaskDetected?: (text: string) => void;
   onTranslationDetected?: (text: string, targetLanguage: string) => void;
+  onSpeechRateDetected?: (rate: 'slower' | 'faster' | 'normal') => void;
+  onWordByWordDetected?: () => void;
   autoSaveDelay?: number;
 }
 
@@ -81,6 +83,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onReminderDetected,
     onTaskDetected,
     onTranslationDetected,
+    onSpeechRateDetected,
+    onWordByWordDetected,
     autoSaveDelay = 5000
   } = options;
 
@@ -306,6 +310,50 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
                 onTranslationDetected(textToTranslate, targetLanguage);
               }
             }
+            
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+
+          const speechRateCommands = [
+            'say that slower',
+            'speak slower',
+            'repeat slower',
+            'say slower',
+            'slower please'
+          ];
+          
+          const hasSpeechRateCommand = speechRateCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasSpeechRateCommand && onSpeechRateDetected) {
+            onSpeechRateDetected('slower');
+            
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+
+          const wordByWordCommands = [
+            'repeat word by word',
+            'say word by word',
+            'word by word',
+            'repeat slowly',
+            'practice mode'
+          ];
+          
+          const hasWordByWordCommand = wordByWordCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasWordByWordCommand && onWordByWordDetected) {
+            onWordByWordDetected();
             
             shouldContinueListening.current = false;
             isWaitingForTrigger.current = true;

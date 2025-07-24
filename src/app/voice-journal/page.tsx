@@ -10,12 +10,15 @@ import { translationService } from '../../utils/translationService';
 export default function VoiceJournal() {
   const [triggerWord, setTriggerWord] = useState('echo');
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const [translatedContent, setTranslatedContent] = useState<{text: string, language: string} | null>(null);
+  const [translatedContent, setTranslatedContent] = useState<{text: string, language: string, languageCode: string} | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechSettings, setSpeechSettings] = useState({ enabled: true, defaultLanguage: 'es', rate: 1 });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
+      setSpeechSettings(translationService.getSpeechSettings());
     }
   }, []);
 
@@ -31,11 +34,24 @@ export default function VoiceJournal() {
     setIsTranslating(true);
     try {
       const languageCode = translationService.getLanguageCode(targetLanguage) || targetLanguage;
-      const result = await translationService.translateText(text, languageCode);
+      const result = await translationService.translateWithSpeech(text, languageCode);
+      
       setTranslatedContent({
         text: result.translatedText,
-        language: translationService.getSupportedLanguages()[languageCode] || targetLanguage
+        language: translationService.getSupportedLanguages()[languageCode] || targetLanguage,
+        languageCode: languageCode
       });
+
+      if (speechSettings.enabled && translationService.isSpeechSynthesisSupported()) {
+        setIsSpeaking(true);
+        try {
+          await result.speak({ rate: speechSettings.rate });
+        } catch (speechError) {
+          console.error('Speech synthesis failed:', speechError);
+        } finally {
+          setIsSpeaking(false);
+        }
+      }
     } catch (error) {
       console.error('Translation failed:', error);
     } finally {
@@ -47,6 +63,52 @@ export default function VoiceJournal() {
     if (currentTranscript.trim()) {
       await handleTranslation(currentTranscript, targetLanguage);
     }
+  };
+
+  const handleSpeechRate = async (rate: 'slower' | 'faster' | 'normal') => {
+    if (translatedContent && translationService.isSpeechSynthesisSupported()) {
+      setIsSpeaking(true);
+      try {
+        const speechRate = rate === 'slower' ? 0.5 : rate === 'faster' ? 1.5 : 1;
+        await translationService.speakText(translatedContent.text, translatedContent.languageCode, { rate: speechRate });
+      } catch (error) {
+        console.error('Speech rate control failed:', error);
+      } finally {
+        setIsSpeaking(false);
+      }
+    }
+  };
+
+  const handleWordByWord = async () => {
+    if (translatedContent && translationService.isSpeechSynthesisSupported()) {
+      setIsSpeaking(true);
+      try {
+        await translationService.speakWordByWord(translatedContent.text, translatedContent.languageCode);
+      } catch (error) {
+        console.error('Word-by-word speech failed:', error);
+      } finally {
+        setIsSpeaking(false);
+      }
+    }
+  };
+
+  const handleManualSpeak = async () => {
+    if (translatedContent && translationService.isSpeechSynthesisSupported()) {
+      setIsSpeaking(true);
+      try {
+        await translationService.speakText(translatedContent.text, translatedContent.languageCode, { rate: speechSettings.rate });
+      } catch (error) {
+        console.error('Manual speech failed:', error);
+      } finally {
+        setIsSpeaking(false);
+      }
+    }
+  };
+
+  const toggleSpeechSettings = () => {
+    const newSettings = { ...speechSettings, enabled: !speechSettings.enabled };
+    setSpeechSettings(newSettings);
+    translationService.setSpeechSettings(newSettings);
   };
 
   const { 
@@ -81,7 +143,9 @@ export default function VoiceJournal() {
       setCurrentTranscript('');
       setTranslatedContent(null);
     },
-    onTranslationDetected: handleTranslation
+    onTranslationDetected: handleTranslation,
+    onSpeechRateDetected: handleSpeechRate,
+    onWordByWordDetected: handleWordByWord
   });
 
   useEffect(() => {
@@ -172,43 +236,120 @@ export default function VoiceJournal() {
         {/* Translation Section */}
         {(translatedContent || isTranslating) && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center mb-2">
-              <span className="text-blue-600 mr-2">🌐</span>
-              <h3 className="font-canva-sans text-sm font-medium text-blue-800">
-                Translation ({translatedContent?.language || 'processing...'})
-              </h3>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center">
+                <span className="text-blue-600 mr-2">🌐</span>
+                <h3 className="font-canva-sans text-sm font-medium text-blue-800">
+                  Translation ({translatedContent?.language || 'processing...'})
+                </h3>
+              </div>
+              {translatedContent && translationService.isSpeechSynthesisSupported() && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleManualSpeak}
+                    disabled={isSpeaking}
+                    className="p-1 rounded text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                    title="Speak translation"
+                  >
+                    {isSpeaking ? '🔊' : '🔈'}
+                  </button>
+                  <button
+                    onClick={toggleSpeechSettings}
+                    className={`p-1 rounded transition-colors duration-200 ${
+                      speechSettings.enabled ? 'text-blue-600 bg-blue-100' : 'text-gray-400'
+                    }`}
+                    title="Toggle auto-speech"
+                  >
+                    🎵
+                  </button>
+                </div>
+              )}
             </div>
             {isTranslating ? (
               <p className="font-canva-sans text-sm text-blue-600">Translating...</p>
             ) : (
-              <p className="font-canva-sans text-base text-blue-900">
-                {translatedContent?.text}
-              </p>
+              <>
+                <p className="font-canva-sans text-base text-blue-900 mb-3">
+                  {translatedContent?.text}
+                </p>
+                {translatedContent && translationService.isSpeechSynthesisSupported() && (
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleSpeechRate('slower')}
+                      disabled={isSpeaking}
+                      className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-200"
+                    >
+                      🐌 Slower
+                    </button>
+                    <button
+                      onClick={() => handleSpeechRate('normal')}
+                      disabled={isSpeaking}
+                      className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-200"
+                    >
+                      ▶️ Normal
+                    </button>
+                    <button
+                      onClick={handleWordByWord}
+                      disabled={isSpeaking}
+                      className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-200"
+                    >
+                      📝 Word by Word
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+            {isSpeaking && (
+              <p className="font-canva-sans text-xs text-blue-600 mt-2">🔊 Speaking...</p>
             )}
           </div>
         )}
 
         {/* Manual Translation Triggers */}
         {currentTranscript && !isTranslating && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            <button
-              onClick={() => handleManualTranslation('spanish')}
-              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
-            >
-              🌐 Spanish
-            </button>
-            <button
-              onClick={() => handleManualTranslation('french')}
-              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
-            >
-              🌐 French
-            </button>
-            <button
-              onClick={() => handleManualTranslation('german')}
-              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
-            >
-              🌐 German
-            </button>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-canva-sans text-sm font-medium text-gray-700">Quick Translate:</h4>
+              <div className="flex items-center space-x-2">
+                <span className="font-canva-sans text-xs text-gray-500">Auto-speak:</span>
+                <button
+                  onClick={toggleSpeechSettings}
+                  className={`w-8 h-4 rounded-full transition-colors duration-200 ${
+                    speechSettings.enabled ? 'bg-blue-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full bg-white transition-transform duration-200 ${
+                    speechSettings.enabled ? 'translate-x-4' : 'translate-x-0.5'
+                  }`}></div>
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleManualTranslation('spanish')}
+                className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+              >
+                🌐 Spanish
+              </button>
+              <button
+                onClick={() => handleManualTranslation('french')}
+                className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+              >
+                🌐 French
+              </button>
+              <button
+                onClick={() => handleManualTranslation('german')}
+                className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+              >
+                🌐 German
+              </button>
+              <button
+                onClick={() => handleManualTranslation('japanese')}
+                className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+              >
+                🌐 Japanese
+              </button>
+            </div>
           </div>
         )}
         
