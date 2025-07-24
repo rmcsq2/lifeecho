@@ -11,6 +11,7 @@ export default function PhotoJournal() {
   const [triggerWord, setTriggerWord] = useState('echo');
   const [dictatedNotes, setDictatedNotes] = useState('');
   const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number, address?: string} | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -39,18 +40,60 @@ export default function PhotoJournal() {
   }, []);
 
   const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Use back camera on mobile
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+    setCameraError(null);
+    
+    const constraints = [
+      { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } },
+      { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { video: { facingMode: 'environment' } },
+      { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { video: true }
+    ];
+
+    for (const constraint of constraints) {
+      try {
+        console.log('Trying camera constraint:', constraint);
+        const stream = await navigator.mediaDevices.getUserMedia(constraint);
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setIsCapturing(true);
+        return;
+      } catch (error) {
+        console.log('Camera constraint failed:', constraint, error);
+        continue;
       }
-      setIsCapturing(true);
-    } catch (error) {
-      console.error('Camera access denied:', error);
-      alert('Camera access is required to take photos. Please allow camera access and try again.');
+    }
+    
+    handleCameraError(new Error('No camera available'));
+  };
+
+  const handleCameraError = (error: any) => {
+    console.error('Camera access failed:', error);
+    
+    if (error.name === 'NotAllowedError') {
+      setCameraError('Camera access denied. Please allow camera access in your browser settings and try again.');
+    } else if (error.name === 'NotFoundError') {
+      setCameraError('No camera found. Please ensure your device has a camera and try again.');
+    } else if (error.name === 'NotReadableError') {
+      setCameraError('Camera is being used by another application. Please close other camera apps and try again.');
+    } else if (error.name === 'OverconstrainedError') {
+      setCameraError('Camera constraints not supported. Trying with basic settings...');
+      setTimeout(() => {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            streamRef.current = stream;
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+            setIsCapturing(true);
+            setCameraError(null);
+          })
+          .catch(() => setCameraError('Camera not available on this device.'));
+      }, 1000);
+    } else {
+      setCameraError('Camera not available. Please check your device settings and try again.');
     }
   };
 
@@ -225,9 +268,14 @@ export default function PhotoJournal() {
                   <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#3B6EFF' }}>
                     <div className="w-8 h-8 bg-white rounded-sm"></div>
                   </div>
-                  <p className="font-canva-sans text-lg font-medium text-gray-600">
+                  <p className="font-canva-sans text-lg font-medium text-gray-600 mb-2">
                     Tap to take photo or say &quot;Echo take picture&quot;
                   </p>
+                  {cameraError && (
+                    <p className="font-canva-sans text-sm text-red-500">
+                      Camera access required for photos
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -263,11 +311,27 @@ export default function PhotoJournal() {
           </div>
         </div>
 
-        {/* Error Display */}
+        {/* Camera Error Display */}
+        {cameraError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="font-canva-sans text-sm text-red-600 text-center mb-3">
+              📷 {cameraError}
+            </p>
+            <button
+              onClick={startCamera}
+              className="w-full py-2 px-4 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-white"
+              style={{ backgroundColor: 'var(--primary-blue)' }}
+            >
+              Try Camera Again
+            </button>
+          </div>
+        )}
+
+        {/* Voice Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <p className="font-canva-sans text-sm text-red-600 text-center mb-3">
-              {error}
+              🎤 {error}
             </p>
             {(error.includes('Microphone') || error.includes('microphone')) && (
               <button
@@ -275,7 +339,7 @@ export default function PhotoJournal() {
                 className="w-full py-2 px-4 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-white"
                 style={{ backgroundColor: 'var(--primary-blue)' }}
               >
-                Try Again
+                Try Voice Again
               </button>
             )}
           </div>
