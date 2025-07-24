@@ -5,12 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
+import { translationService } from '../../utils/translationService';
 
 export default function AskEcho() {
   const [isActivated, setIsActivated] = useState(false);
   const [response, setResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [triggerWord, setTriggerWord] = useState('echo');
+  const [translatedContent, setTranslatedContent] = useState<{text: string, language: string} | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -25,6 +28,29 @@ export default function AskEcho() {
     "Show me my most recent voice recordings"
   ];
 
+  const handleTranslation = async (text: string, targetLanguage: string) => {
+    setIsTranslating(true);
+    try {
+      const languageCode = translationService.getLanguageCode(targetLanguage) || targetLanguage;
+      const result = await translationService.translateText(text, languageCode);
+      setTranslatedContent({
+        text: result.translatedText,
+        language: translationService.getSupportedLanguages()[languageCode] || targetLanguage
+      });
+    } catch (error) {
+      console.error('Translation failed:', error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleManualTranslation = async (targetLanguage: string) => {
+    const textToTranslate = response;
+    if (textToTranslate.trim()) {
+      await handleTranslation(textToTranslate, targetLanguage);
+    }
+  };
+
   const { 
     isListening, 
     transcript, 
@@ -38,20 +64,21 @@ export default function AskEcho() {
     onTriggerDetected: () => {
       setIsActivated(true);
       setResponse('');
+      setTranslatedContent(null);
       console.log('Ask Echo activated!');
     },
-    onTranscript: (text, isFinal) => {
+    onTranscript: () => {
     },
-    onAutoSave: (text) => {
+    onAutoSave: async (text) => {
       console.log('Auto-saving ask echo notes after 5 seconds of silence:', text);
       if (text.trim()) {
-        const savedNote = voiceNoteStorage.saveVoiceNote(text);
+        const savedNote = await voiceNoteStorage.saveVoiceNote(text);
         console.log('Ask Echo note saved:', savedNote);
       }
     },
-    onSubmitDetected: (finalText) => {
+    onSubmitDetected: async (finalText) => {
       if (finalText.trim()) {
-        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
+        const savedNote = await voiceNoteStorage.saveVoiceNote(finalText);
         console.log('Ask Echo note submitted:', savedNote);
         setIsActivated(false);
         setIsProcessing(true);
@@ -65,8 +92,10 @@ export default function AskEcho() {
     onStopDetected: () => {
       setIsActivated(false);
       setResponse('');
+      setTranslatedContent(null);
       console.log('Ask Echo stopped by voice command');
-    }
+    },
+    onTranslationDetected: handleTranslation
   });
 
   useEffect(() => {
@@ -153,17 +182,48 @@ export default function AskEcho() {
         )}
 
         {/* Response Window */}
-        <div className="w-full max-w-md rounded-lg p-6 mb-12 min-h-[120px]" style={{ backgroundColor: 'var(--secondary)', border: '1px solid var(--border)' }}>
+        <div className="w-full max-w-md rounded-lg p-6 mb-6 min-h-[120px]" style={{ backgroundColor: 'var(--secondary)', border: '1px solid var(--border)' }}>
           {response ? (
             <p className="font-canva-sans text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               {response}
             </p>
           ) : (
             <p className="font-canva-sans text-base text-gray-500 italic text-center">
-              Echo's response will appear here...
+              Echo&apos;s response will appear here...
             </p>
           )}
         </div>
+
+        {/* Translation Section */}
+        {(translatedContent || isTranslating) && (
+          <div className="w-full max-w-md bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center mb-2">
+              <span className="text-blue-600 mr-2">🌐</span>
+              <h3 className="font-canva-sans text-sm font-medium text-blue-800">
+                Translation ({translatedContent?.language || 'processing...'})
+              </h3>
+            </div>
+            {isTranslating ? (
+              <p className="font-canva-sans text-sm text-blue-600">Translating...</p>
+            ) : (
+              <p className="font-canva-sans text-base text-blue-900">
+                {translatedContent?.text}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Manual Translation Triggers */}
+        {response && !isTranslating && (
+          <div className="w-full max-w-md mb-12 flex flex-wrap gap-2">
+            <button
+              onClick={() => handleManualTranslation('spanish')}
+              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+            >
+              🌐 Translate this
+            </button>
+          </div>
+        )}
 
         {/* Error Display */}
         {error && (
@@ -206,7 +266,7 @@ export default function AskEcho() {
                 className="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <p className="font-canva-sans text-base text-gray-600">
-                  "{prompt}"
+                  &quot;{prompt}&quot;
                 </p>
               </button>
             ))}
@@ -257,13 +317,13 @@ export default function AskEcho() {
         </Link>
         
         <Link 
-          href="/settings"
+          href="/map"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#6b7280' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#ef4444' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>More</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Map</span>
         </Link>
       </footer>
     </div>

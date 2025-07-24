@@ -3,7 +3,48 @@ import { VoiceNote } from '../types/VoiceNote';
 const STORAGE_KEY = 'lifeecho-voice-notes';
 
 export const voiceNoteStorage = {
-  saveVoiceNote: (text: string): VoiceNote => {
+  saveVoiceNote: async (text: string, options?: { skipLocation?: boolean }): Promise<VoiceNote> => {
+    let locationData = {};
+    
+    if (!options?.skipLocation && navigator.geolocation) {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 5000,
+            enableHighAccuracy: false
+          });
+        });
+        
+        locationData = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+      } catch (error) {
+        console.log('Location capture failed:', error);
+      }
+    }
+
+    const note: VoiceNote = {
+      id: Date.now().toString(),
+      text: text.trim(),
+      timestamp: Date.now(),
+      title: generateTitle(text),
+      ...locationData
+    };
+
+    const existingNotes = voiceNoteStorage.getVoiceNotes();
+    const updatedNotes = [note, ...existingNotes];
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+    } catch (error) {
+      console.error('Failed to save voice note:', error);
+    }
+    
+    return note;
+  },
+
+  saveVoiceNoteSync: (text: string): VoiceNote => {
     const note: VoiceNote = {
       id: Date.now().toString(),
       text: text.trim(),
@@ -21,6 +62,31 @@ export const voiceNoteStorage = {
     }
     
     return note;
+  },
+
+  updateVoiceNoteTranslation: (noteId: string, languageCode: string, translatedText: string): void => {
+    const notes = voiceNoteStorage.getVoiceNotes();
+    const updatedNotes = notes.map(note => {
+      if (note.id === noteId) {
+        return {
+          ...note,
+          translations: {
+            ...note.translations,
+            [languageCode]: {
+              text: translatedText,
+              timestamp: Date.now()
+            }
+          }
+        };
+      }
+      return note;
+    });
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+    } catch (error) {
+      console.error('Failed to update voice note translation:', error);
+    }
   },
 
   getVoiceNotes: (): VoiceNote[] => {

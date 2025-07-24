@@ -79,6 +79,14 @@ export default function Notes() {
                           </p>
                         </div>
                         <div className="flex items-center space-x-3 ml-4">
+                          <div className="flex items-center space-x-2">
+                            {note.latitude && note.longitude && (
+                              <span className="text-red-500 text-sm">📍</span>
+                            )}
+                            {note.translations && Object.keys(note.translations).length > 0 && (
+                              <span className="text-blue-500 text-sm">🌐</span>
+                            )}
+                          </div>
                           <p className="font-canva-sans text-sm text-gray-500">
                             {time}
                           </p>
@@ -153,13 +161,13 @@ export default function Notes() {
         </Link>
         
         <Link 
-          href="/settings"
+          href="/map"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#6b7280' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#ef4444' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>More</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Map</span>
         </Link>
       </footer>
     </div>

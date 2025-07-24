@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
+import { translationService } from '../../utils/translationService';
 
 export default function VoiceJournal() {
-  const [isActivated, setIsActivated] = useState(false);
-  const [savedTranscripts, setSavedTranscripts] = useState<string[]>([]);
   const [triggerWord, setTriggerWord] = useState('echo');
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const [translatedContent, setTranslatedContent] = useState<{text: string, language: string} | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -18,13 +19,33 @@ export default function VoiceJournal() {
     }
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (currentTranscript.trim()) {
-      const savedNote = voiceNoteStorage.saveVoiceNote(currentTranscript);
-      setSavedTranscripts(prev => [...prev, currentTranscript]);
+      await voiceNoteStorage.saveVoiceNote(currentTranscript);
       setCurrentTranscript('');
-      setIsActivated(false);
-      console.log('Voice Journal submitted:', savedNote);
+      setTranslatedContent(null);
+    }
+  };
+
+  const handleTranslation = async (text: string, targetLanguage: string) => {
+    setIsTranslating(true);
+    try {
+      const languageCode = translationService.getLanguageCode(targetLanguage) || targetLanguage;
+      const result = await translationService.translateText(text, languageCode);
+      setTranslatedContent({
+        text: result.translatedText,
+        language: translationService.getSupportedLanguages()[languageCode] || targetLanguage
+      });
+    } catch (error) {
+      console.error('Translation failed:', error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleManualTranslation = async (targetLanguage: string) => {
+    if (currentTranscript.trim()) {
+      await handleTranslation(currentTranscript, targetLanguage);
     }
   };
 
@@ -33,40 +54,34 @@ export default function VoiceJournal() {
     transcript, 
     isSupported, 
     error, 
-    startListening, 
-    stopListening,
-    resetTrigger 
+    startListening
   } = useVoiceRecognition({
     triggerWord: triggerWord,
     onTriggerDetected: () => {
-      setIsActivated(true);
       setCurrentTranscript('');
-      console.log('Voice Journal activated!');
+      setTranslatedContent(null);
     },
-    onTranscript: (text, isFinal) => {
+    onTranscript: (text) => {
       setCurrentTranscript(text);
     },
-    onAutoSave: (text) => {
+    onAutoSave: async (text) => {
       console.log('Auto-saving voice journal after 5 seconds of silence:', text);
-      const savedNote = voiceNoteStorage.saveVoiceNote(text);
-      setSavedTranscripts(prev => [...prev, text]);
+      await voiceNoteStorage.saveVoiceNote(text);
       setCurrentTranscript('');
-      setIsActivated(false);
+      setTranslatedContent(null);
     },
-    onSubmitDetected: (finalText) => {
+    onSubmitDetected: async (finalText) => {
       if (finalText.trim()) {
-        const savedNote = voiceNoteStorage.saveVoiceNote(finalText);
-        setSavedTranscripts(prev => [...prev, finalText]);
+        await voiceNoteStorage.saveVoiceNote(finalText);
         setCurrentTranscript('');
-        setIsActivated(false);
-        console.log('Voice Journal submitted:', savedNote);
+        setTranslatedContent(null);
       }
     },
     onStopDetected: () => {
-      setIsActivated(false);
       setCurrentTranscript('');
-      console.log('Voice Journal stopped by voice command');
-    }
+      setTranslatedContent(null);
+    },
+    onTranslationDetected: handleTranslation
   });
 
   useEffect(() => {
@@ -118,7 +133,7 @@ export default function VoiceJournal() {
       {/* Voice Activation Text */}
       <div className="text-center px-8 mb-6">
         <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B' }}>
-          Say 'Echo' to Dictate Notes
+          Say &apos;Echo&apos; to Dictate Notes
         </p>
       </div>
 
@@ -153,6 +168,49 @@ export default function VoiceJournal() {
             </button>
           </div>
         </div>
+        
+        {/* Translation Section */}
+        {(translatedContent || isTranslating) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center mb-2">
+              <span className="text-blue-600 mr-2">🌐</span>
+              <h3 className="font-canva-sans text-sm font-medium text-blue-800">
+                Translation ({translatedContent?.language || 'processing...'})
+              </h3>
+            </div>
+            {isTranslating ? (
+              <p className="font-canva-sans text-sm text-blue-600">Translating...</p>
+            ) : (
+              <p className="font-canva-sans text-base text-blue-900">
+                {translatedContent?.text}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Manual Translation Triggers */}
+        {currentTranscript && !isTranslating && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            <button
+              onClick={() => handleManualTranslation('spanish')}
+              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+            >
+              🌐 Spanish
+            </button>
+            <button
+              onClick={() => handleManualTranslation('french')}
+              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+            >
+              🌐 French
+            </button>
+            <button
+              onClick={() => handleManualTranslation('german')}
+              className="px-3 py-1 rounded-lg font-canva-sans text-sm font-medium transition-colors duration-200 text-blue-600 border border-blue-300 hover:bg-blue-50"
+            >
+              🌐 German
+            </button>
+          </div>
+        )}
         
         {/* Auto-Save Note */}
         <p className="font-canva-sans text-sm text-gray-400 mb-8">
@@ -222,11 +280,11 @@ export default function VoiceJournal() {
         </Link>
         
         <Link 
-          href="/settings"
+          href="/map"
           className="flex flex-col items-center space-y-1"
         >
-          <div className="w-8 h-8 bg-black rounded-sm"></div>
-          <span className="font-canva-sans text-sm" style={{ color: '#4E4B4B' }}>More</span>
+          <div className="w-8 h-8 bg-red-500 rounded-sm"></div>
+          <span className="font-canva-sans text-sm" style={{ color: '#4E4B4B' }}>Map</span>
         </Link>
       </footer>
     </div>

@@ -15,10 +15,10 @@ interface SpeechRecognition extends EventTarget {
   lang: string;
   start(): void;
   stop(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -48,7 +48,7 @@ interface SpeechRecognitionAlternative {
   confidence: number;
 }
 
-declare var SpeechRecognition: {
+declare const SpeechRecognition: {
   prototype: SpeechRecognition;
   new(): SpeechRecognition;
 };
@@ -64,6 +64,7 @@ interface VoiceRecognitionOptions {
   onAutoSave?: (transcript: string) => void;
   onReminderDetected?: (text: string) => void;
   onTaskDetected?: (text: string) => void;
+  onTranslationDetected?: (text: string, targetLanguage: string) => void;
   autoSaveDelay?: number;
 }
 
@@ -79,6 +80,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onAutoSave,
     onReminderDetected,
     onTaskDetected,
+    onTranslationDetected,
     autoSaveDelay = 5000
   } = options;
 
@@ -274,6 +276,37 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           const hasStopCommand = stopCommands.some(cmd => fullTranscript.includes(cmd));
           
           if (hasStopCommand) {
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+          
+          const translationCommands = [
+            'echo translate',
+            'echotranslate',
+            `${triggerWord.toLowerCase()} translate`,
+            `${triggerWord.toLowerCase()}translate`
+          ];
+          
+          const hasTranslationCommand = translationCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasTranslationCommand) {
+            const languageMatch = fullTranscript.match(/translate.*?to\s+(\w+)/i) || 
+                                fullTranscript.match(/translate.*?(\w+)$/i);
+            
+            if (languageMatch) {
+              const targetLanguage = languageMatch[1].toLowerCase();
+              const textToTranslate = persistentTranscript.current.trim();
+              
+              if (textToTranslate && onTranslationDetected) {
+                onTranslationDetected(textToTranslate, targetLanguage);
+              }
+            }
+            
             shouldContinueListening.current = false;
             isWaitingForTrigger.current = true;
             onStopDetected?.();
