@@ -224,6 +224,15 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           if (hasReminderCommand || hasTaskCommand) {
             let cleanText = fullTranscript;
             
+            const triggerPatterns = [
+              new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+              new RegExp(`\\becho\\b,?\\s*`, 'gi')
+            ];
+            
+            triggerPatterns.forEach(pattern => {
+              cleanText = cleanText.replace(pattern, '').trim();
+            });
+            
             reminderCommands.concat(taskCommands).forEach(cmd => {
               cleanText = cleanText.replace(new RegExp(cmd, 'gi'), '').trim();
             });
@@ -257,7 +266,17 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           const hasSubmitCommand = submitCommands.some(cmd => fullTranscript.includes(cmd));
           
           if (hasSubmitCommand) {
-            const finalText = persistentTranscript.current.trim();
+            let finalText = persistentTranscript.current.trim();
+            
+            const triggerPatterns = [
+              new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+              new RegExp(`\\becho\\b,?\\s*`, 'gi')
+            ];
+            
+            triggerPatterns.forEach(pattern => {
+              finalText = finalText.replace(pattern, '').trim();
+            });
+            
             if (finalText) {
               onSubmitDetected?.(finalText);
             }
@@ -304,7 +323,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
             
             if (languageMatch) {
               const targetLanguage = languageMatch[1].toLowerCase();
-              const textToTranslate = persistentTranscript.current.trim();
+              let textToTranslate = persistentTranscript.current.trim();
+              
+              const triggerPatterns = [
+                new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+                new RegExp(`\\becho\\b,?\\s*`, 'gi')
+              ];
+              
+              triggerPatterns.forEach(pattern => {
+                textToTranslate = textToTranslate.replace(pattern, '').trim();
+              });
               
               if (textToTranslate && onTranslationDetected) {
                 onTranslationDetected(textToTranslate, targetLanguage);
@@ -365,20 +393,42 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           }
           
           if (finalTranscript) {
-            persistentTranscript.current += (persistentTranscript.current ? ' ' : '') + finalTranscript;
+            let cleanFinalTranscript = finalTranscript;
+            const triggerPatterns = [
+              new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+              new RegExp(`\\becho\\b,?\\s*`, 'gi')
+            ];
             
-            if (autoSaveTimeoutRef.current) {
-              clearTimeout(autoSaveTimeoutRef.current);
-            }
+            triggerPatterns.forEach(pattern => {
+              cleanFinalTranscript = cleanFinalTranscript.replace(pattern, '').trim();
+            });
             
-            if (onAutoSave && persistentTranscript.current.trim()) {
-              autoSaveTimeoutRef.current = setTimeout(() => {
-                onAutoSave(persistentTranscript.current.trim());
-              }, autoSaveDelay);
+            if (cleanFinalTranscript) {
+              persistentTranscript.current += (persistentTranscript.current ? ' ' : '') + cleanFinalTranscript;
+              
+              if (autoSaveTimeoutRef.current) {
+                clearTimeout(autoSaveTimeoutRef.current);
+              }
+              
+              if (onAutoSave && persistentTranscript.current.trim()) {
+                autoSaveTimeoutRef.current = setTimeout(() => {
+                  onAutoSave(persistentTranscript.current.trim());
+                }, autoSaveDelay);
+              }
             }
           }
           
-          const displayTranscript = persistentTranscript.current + (interimTranscript ? ' ' + interimTranscript : '');
+          let cleanInterimTranscript = interimTranscript;
+          const triggerPatterns = [
+            new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+            new RegExp(`\\becho\\b,?\\s*`, 'gi')
+          ];
+          
+          triggerPatterns.forEach(pattern => {
+            cleanInterimTranscript = cleanInterimTranscript.replace(pattern, '').trim();
+          });
+          
+          const displayTranscript = persistentTranscript.current + (cleanInterimTranscript ? ' ' + cleanInterimTranscript : '');
           setTranscript(displayTranscript);
           onTranscript?.(displayTranscript, !!finalTranscript);
         }
