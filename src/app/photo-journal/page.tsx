@@ -170,7 +170,7 @@ export default function PhotoJournal() {
         {/* Voice Activation Section */}
         <div className="flex items-center justify-between mt-8">
           <p className="font-canva-sans text-lg font-medium" style={{ color: '#4E4B4B' }}>
-            Say 'Echo' Take Notes
+            Say &apos;Echo&apos; Take Notes
           </p>
           
           {/* Voice Wave Logo */}
@@ -226,7 +226,7 @@ export default function PhotoJournal() {
                     <div className="w-8 h-8 bg-white rounded-sm"></div>
                   </div>
                   <p className="font-canva-sans text-lg font-medium text-gray-600">
-                    Tap to take photo or say "Echo take picture"
+                    Tap to take photo or say &quot;Echo take picture&quot;
                   </p>
                 </div>
               </div>

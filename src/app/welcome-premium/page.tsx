@@ -18,7 +18,7 @@ export default function WelcomePremium() {
     stopListening,
     resetTrigger 
   } = useVoiceRecognition({
-    triggerWord: localStorage.getItem('customTriggerWord') || 'echo',
+    triggerWord: typeof window !== 'undefined' ? (localStorage.getItem('customTriggerWord') || 'echo') : 'echo',
     onTriggerDetected: () => {
       setIsActivated(true);
       console.log('Premium welcome activated!');
@@ -107,7 +107,7 @@ export default function WelcomePremium() {
             {isActivated 
               ? 'Premium voice activated! Ask Echo anything...' 
               : isListening 
-              ? `Say "${localStorage.getItem('customTriggerWord') || 'echo'}" then ask Echo anything for a personal response` 
+              ? `Say "${typeof window !== 'undefined' ? (localStorage.getItem('customTriggerWord') || 'echo') : 'echo'}" then ask Echo anything for a personal response` 
               : 'Tap logo or say "Echo" - Ask Echo anything and get a personal response'
             }
           </p>

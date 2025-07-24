@@ -98,7 +98,7 @@ export default function Reminders() {
         {isActivated && (
           <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--accent)', border: '1px solid var(--border)' }}>
             <p className="font-canva-sans text-base text-center" style={{ color: 'var(--primary-blue)' }}>
-              🎤 Say "Echo, remind me..." or "Echo remember..."
+              🎤 Say &quot;Echo, remind me...&quot; or &quot;Echo remember...&quot;
             </p>
           </div>
         )}
@@ -177,7 +177,7 @@ export default function Reminders() {
               ))
             ) : (
               <p className="font-canva-sans text-base text-gray-500 text-center py-8">
-                No scheduled reminders yet. Say "Echo, remind me..." to create one.
+                No scheduled reminders yet. Say &quot;Echo, remind me...&quot; to create one.
               </p>
             )}
           </div>
@@ -232,7 +232,7 @@ export default function Reminders() {
               ))
             ) : (
               <p className="font-canva-sans text-base text-gray-500 text-center py-8">
-                No tasks yet. Say "Echo remember..." to create one.
+                No tasks yet. Say &quot;Echo remember...&quot; to create one.
               </p>
             )}
           </div>

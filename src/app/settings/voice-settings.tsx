@@ -33,7 +33,7 @@ export default function VoiceSettings() {
       <div className="space-y-4">
         <div>
           <label className="block font-canva-sans text-base mb-2" style={{ color: 'var(--muted-foreground)' }}>
-            Your Custom Wake Word (default: "echo")
+            Your Custom Wake Word (default: &quot;echo&quot;)
           </label>
           <input
             type="text"

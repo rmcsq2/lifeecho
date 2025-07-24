@@ -77,7 +77,7 @@ export function parseReminderDateTime(text: string): { parsedText: string; times
   
   const timeMatch = lowerText.match(/at (\d{1,2}):?(\d{0,2})\s*(am|pm)/i);
   
-  let targetDate = new Date(now);
+  const targetDate = new Date(now);
   let parsedText = text;
   
   if (lowerText.includes('tomorrow')) {
