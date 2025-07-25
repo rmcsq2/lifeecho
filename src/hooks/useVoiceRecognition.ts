@@ -93,12 +93,14 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isWaitingForTrigger = useRef(true);
   const shouldContinueListening = useRef(true);
   const persistentTranscript = useRef('');
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -125,7 +127,11 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         console.log('=== SpeechRecognition STARTED ===');
         console.log('Recognition started successfully');
         setIsListening(true);
+        setIsPaused(false);
         setError(null);
+        if (!isWaitingForTrigger.current) {
+          resetPauseTimer();
+        }
       };
 
       recognition.addEventListener('audiostart', () => {
@@ -165,13 +171,23 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       recognition.addEventListener('speechend', () => {
         console.log('=== SPEECH END EVENT ===');
         console.log('Speech recognition service stopped detecting speech');
+        if (!isWaitingForTrigger.current) {
+          resetPauseTimer();
+        }
       });
       
       recognition.onend = () => {
         console.log('=== SpeechRecognition ENDED ===');
         console.log('Recognition ended - shouldContinueListening:', shouldContinueListening.current);
         console.log('Recognition ended - continuous:', recognition.continuous);
+        console.log('Recognition ended - isPaused:', isPaused);
         setIsListening(false);
+        
+        if (!isPaused) {
+          setIsPaused(true);
+        }
+        
+        clearPauseTimer();
         
         if (recognition.continuous && shouldContinueListening.current) {
           console.log(`Attempting to restart recognition in ${config.restartDelay}ms...`);
@@ -267,6 +283,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         }
         
         if (!isWaitingForTrigger.current) {
+          resetPauseTimer();
+          
           const reminderCommands = [
             'echo remind',
             'echoremind',
@@ -617,6 +635,28 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     }
   }, [isSupported]);
 
+  const resetPauseTimer = useCallback(() => {
+    clearPauseTimer();
+    setIsPaused(false);
+    
+    pauseTimerRef.current = setTimeout(() => {
+      console.log('=== PAUSE TIMER TRIGGERED ===');
+      console.log('15 seconds of silence detected, pausing and stopping recognition');
+      setIsPaused(true);
+      if (recognitionRef.current && shouldContinueListening.current) {
+        shouldContinueListening.current = false;
+        recognitionRef.current.stop();
+      }
+    }, 15000); // 15 seconds of silence like React Native example
+  }, []);
+
+  const clearPauseTimer = useCallback(() => {
+    if (pauseTimerRef.current) {
+      clearTimeout(pauseTimerRef.current);
+      pauseTimerRef.current = null;
+    }
+  }, []);
+
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
       shouldContinueListening.current = false;
@@ -624,31 +664,38 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       isWaitingForTrigger.current = true;
       setTranscript('');
       persistentTranscript.current = '';
+      setIsPaused(false);
+      
+      clearPauseTimer();
       
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
         autoSaveTimeoutRef.current = null;
       }
     }
-  }, []);
+  }, [clearPauseTimer]);
 
   const resetTrigger = useCallback(() => {
     isWaitingForTrigger.current = true;
     shouldContinueListening.current = true;
     setTranscript('');
     persistentTranscript.current = '';
+    setIsPaused(false);
+    
+    clearPauseTimer();
     
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
       autoSaveTimeoutRef.current = null;
     }
-  }, []);
+  }, [clearPauseTimer]);
 
   return {
     isListening,
     transcript,
     isSupported,
     error,
+    isPaused,
     startListening,
     stopListening,
     resetTrigger,
