@@ -114,6 +114,11 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         recognition.continuous = config.continuous && continuous;
         recognition.interimResults = interimResults;
         recognition.lang = 'en-US';
+        
+        if (config.isMobile) {
+          console.log('Applied mobile-specific recognition settings');
+        }
+        
         console.log('SpeechRecognition initialized successfully');
       
       recognition.onstart = () => {
@@ -122,6 +127,45 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         setIsListening(true);
         setError(null);
       };
+
+      recognition.addEventListener('audiostart', () => {
+        console.log('=== AUDIO START EVENT ===');
+        console.log('User agent started capturing audio');
+        if (config.isMobile) {
+          try {
+            if (typeof window !== 'undefined' && window.AudioContext) {
+              console.log('Mobile audio capture started - monitoring for feedback');
+            }
+          } catch (e) {
+            console.log('Audio context management failed:', e);
+          }
+        }
+      });
+
+      recognition.addEventListener('audioend', () => {
+        console.log('=== AUDIO END EVENT ===');
+        console.log('User agent finished capturing audio');
+      });
+
+      recognition.addEventListener('soundstart', () => {
+        console.log('=== SOUND START EVENT ===');
+        console.log('Sound detected (recognizable speech or not)');
+      });
+
+      recognition.addEventListener('soundend', () => {
+        console.log('=== SOUND END EVENT ===');
+        console.log('Sound stopped being detected');
+      });
+
+      recognition.addEventListener('speechstart', () => {
+        console.log('=== SPEECH START EVENT ===');
+        console.log('Speech recognized by service detected');
+      });
+
+      recognition.addEventListener('speechend', () => {
+        console.log('=== SPEECH END EVENT ===');
+        console.log('Speech recognition service stopped detecting speech');
+      });
       
       recognition.onend = () => {
         console.log('=== SpeechRecognition ENDED ===');
@@ -168,7 +212,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         if (event.error === 'aborted') {
           console.log('ABORT ERROR: Voice recognition was aborted - investigating cause');
           if (config.isMobile) {
-            setError('Voice recognition stopped. This is normal on mobile browsers. Tap to restart.');
+            setError('Voice recognition stopped. Mobile browsers have limited support. Try speaking closer to the microphone.');
             shouldContinueListening.current = false;
           } else {
             setError('Voice recognition was aborted. Please try again.');
@@ -490,7 +534,18 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     const config = getSpeechRecognitionConfig();
     
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioConstraints = config.isMobile 
+        ? { 
+            audio: { 
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: false,
+              sampleRate: 16000
+            } 
+          }
+        : { audio: true };
+      
+      await navigator.mediaDevices.getUserMedia(audioConstraints);
       
       isWaitingForTrigger.current = true;
       shouldContinueListening.current = true;

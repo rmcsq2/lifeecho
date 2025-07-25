@@ -14,9 +14,10 @@ export const getSpeechRecognitionConfig = () => {
   
   return {
     isMobile,
-    restartDelay: isMobile ? 1500 : 100,
-    maxRetries: isMobile ? 2 : 5,
+    restartDelay: isMobile ? 2000 : 100,
+    maxRetries: isMobile ? 1 : 5,
     continuous: !isMobile,
-    retryDelay: isMobile ? 2000 : 300
+    retryDelay: isMobile ? 3000 : 300,
+    audioFeedbackPrevention: isMobile
   };
 };
