@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { getSpeechRecognitionConfig } from '../utils/browserDetection';
 
 declare global {
   interface Window {
@@ -101,14 +102,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const config = getSpeechRecognitionConfig();
     
     if (SpeechRecognition) {
       setIsSupported(true);
       
       try {
         console.log('=== INITIALIZING SpeechRecognition ===');
+        console.log('Mobile browser detected:', config.isMobile);
         const recognition = new SpeechRecognition();
-        recognition.continuous = continuous;
+        recognition.continuous = config.continuous && continuous;
         recognition.interimResults = interimResults;
         recognition.lang = 'en-US';
         console.log('SpeechRecognition initialized successfully');
@@ -123,10 +126,11 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       recognition.onend = () => {
         console.log('=== SpeechRecognition ENDED ===');
         console.log('Recognition ended - shouldContinueListening:', shouldContinueListening.current);
-        console.log('Recognition ended - continuous:', continuous);
+        console.log('Recognition ended - continuous:', recognition.continuous);
         setIsListening(false);
-        if (continuous && shouldContinueListening.current) {
-          console.log('Attempting to restart recognition in 100ms...');
+        
+        if (recognition.continuous && shouldContinueListening.current) {
+          console.log(`Attempting to restart recognition in ${config.restartDelay}ms...`);
           setTimeout(() => {
             try {
               if (recognitionRef.current && shouldContinueListening.current) {
@@ -139,10 +143,15 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
               console.log('=== RESTART ERROR ===');
               console.log('Recognition restart failed:', e);
               if (e instanceof Error) {
-                setError(`Failed to restart voice recognition: ${e.message}`);
+                if (config.isMobile) {
+                  setError('Voice recognition stopped. Tap to try again.');
+                  shouldContinueListening.current = false;
+                } else {
+                  setError(`Failed to restart voice recognition: ${e.message}`);
+                }
               }
             }
-          }, 100);
+          }, config.restartDelay);
         }
       };
       
@@ -153,15 +162,25 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
         console.log('Current state - isListening:', isListening);
         console.log('Current state - shouldContinueListening:', shouldContinueListening.current);
         console.log('Current state - isWaitingForTrigger:', isWaitingForTrigger.current);
+        console.log('Mobile browser:', config.isMobile);
         console.log('==========================================');
         
         if (event.error === 'aborted') {
           console.log('ABORT ERROR: Voice recognition was aborted - investigating cause');
-          setError('Voice recognition was aborted. Please try again.');
+          if (config.isMobile) {
+            setError('Voice recognition stopped. This is normal on mobile browsers. Tap to restart.');
+            shouldContinueListening.current = false;
+          } else {
+            setError('Voice recognition was aborted. Please try again.');
+          }
         } else if (event.error === 'audio-capture') {
           setError('Audio capture failed. Please check your microphone.');
         } else if (event.error === 'network') {
-          setError('Network error occurred during voice recognition.');
+          if (config.isMobile) {
+            setError('Network error. Mobile browsers have limited voice recognition support.');
+          } else {
+            setError('Network error occurred during voice recognition.');
+          }
         } else if (event.error === 'not-allowed') {
           setError('Microphone access denied. Please allow microphone access and refresh the page.');
           shouldContinueListening.current = false;
@@ -468,6 +487,8 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
       return;
     }
     
+    const config = getSpeechRecognitionConfig();
+    
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       
@@ -483,13 +504,14 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           isListening: isListening,
           shouldContinueListening: shouldContinueListening.current,
           isWaitingForTrigger: isWaitingForTrigger.current,
-          recognitionExists: !!recognitionRef.current
+          recognitionExists: !!recognitionRef.current,
+          isMobile: config.isMobile
         });
         
         if (isListening) {
           console.log('Recognition already running, stopping first to prevent abort error');
           recognitionRef.current.stop();
-          await new Promise(resolve => setTimeout(resolve, 200)); // Wait for stop to complete
+          await new Promise(resolve => setTimeout(resolve, config.retryDelay));
         }
         
         recognitionRef.current.start();
@@ -503,12 +525,16 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
             console.log('Detected recognition already started or aborted, attempting restart');
             try {
               recognitionRef.current.stop();
-              await new Promise(resolve => setTimeout(resolve, 300));
+              await new Promise(resolve => setTimeout(resolve, config.retryDelay));
               recognitionRef.current.start();
               console.log('Recognition restarted successfully after abort/already-started error');
             } catch (retryError) {
               console.log('Retry after abort failed:', retryError);
-              setError('Voice recognition was aborted. Please try again.');
+              if (config.isMobile) {
+                setError('Voice recognition unavailable. Mobile browsers have limited support. Try refreshing the page.');
+              } else {
+                setError('Voice recognition was aborted. Please try again.');
+              }
             }
           } else {
             setError(`Failed to start voice recognition: ${startError.message}`);

@@ -69,7 +69,7 @@ export default function PhotoJournal() {
     handleCameraError(new Error('No camera available'));
   };
 
-  const handleCameraError = (error: any) => {
+  const handleCameraError = (error: Error | DOMException) => {
     console.error('Camera access failed:', error);
     
     if (error.name === 'NotAllowedError') {
