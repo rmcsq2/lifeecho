@@ -8,6 +8,8 @@ import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 import { translationService } from '../../utils/translationService';
 import { VoiceSearchResults } from '../../components/VoiceSearchResults';
 import { VoiceNote } from '../../types/VoiceNote';
+import { carPinStorage } from '../../utils/carPinStorage';
+import { useGeofenceMonitoring } from '../../hooks/useGeofenceMonitoring';
 
 export default function VoiceJournal() {
   const [triggerWord, setTriggerWord] = useState('echo');
@@ -18,6 +20,7 @@ export default function VoiceJournal() {
   const [speechSettings, setSpeechSettings] = useState({ enabled: true, defaultLanguage: 'es', rate: 1 });
   const [searchResults, setSearchResults] = useState<VoiceNote[]>([]);
   const [searchTerm, setSearchTerm] = useState('Sure Site');
+  const [carPinStatus, setCarPinStatus] = useState<string>('');
   const [searchType, setSearchType] = useState<'last' | 'all'>('all');
   const [showSearchResults, setShowSearchResults] = useState(true);
 
@@ -160,6 +163,22 @@ export default function VoiceJournal() {
     setSearchTerm('');
   };
 
+  const handleCarPinDrop = async () => {
+    try {
+      const carPin = await carPinStorage.saveCarPin();
+      if (carPin) {
+        setCarPinStatus('🚗 Car pin dropped successfully! Monitoring geofence...');
+        setTimeout(() => setCarPinStatus(''), 3000);
+      } else {
+        setCarPinStatus('❌ Failed to drop car pin. GPS may not be available.');
+        setTimeout(() => setCarPinStatus(''), 3000);
+      }
+    } catch (error) {
+      setCarPinStatus('❌ GPS not available. Please enable location services.');
+      setTimeout(() => setCarPinStatus(''), 3000);
+    }
+  };
+
   const { 
     isListening, 
     transcript, 
@@ -195,7 +214,8 @@ export default function VoiceJournal() {
     onTranslationDetected: handleTranslation,
     onSpeechRateDetected: handleSpeechRate,
     onWordByWordDetected: handleWordByWord,
-    onSearchDetected: handleSearchDetected
+    onSearchDetected: handleSearchDetected,
+    onCarPinDetected: handleCarPinDrop
   });
 
   useEffect(() => {
@@ -203,6 +223,19 @@ export default function VoiceJournal() {
       startListening();
     }
   }, [isSupported, startListening]);
+
+  useEffect(() => {
+    const settings = translationService.getSpeechSettings();
+    setSpeechSettings(settings);
+  }, []);
+
+  useGeofenceMonitoring({
+    onCarPinReturn: () => {
+      setCarPinStatus('🚗 Welcome back to your car! Car pin removed.');
+      setTimeout(() => setCarPinStatus(''), 5000);
+    },
+    voiceResponseEnabled: true
+  });
 
 
   return (
@@ -253,6 +286,15 @@ export default function VoiceJournal() {
 
       {/* Main Content */}
       <main className="flex-1 px-8">
+        {/* Car Pin Status */}
+        {carPinStatus && (
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--card)', border: '2px solid var(--primary-blue)' }}>
+            <p className="font-canva-sans text-base text-center" style={{ color: 'var(--foreground)' }}>
+              {carPinStatus}
+            </p>
+          </div>
+        )}
+
         {/* Notes Area */}
         <div className="bg-white rounded-lg p-6 mb-6" style={{ minHeight: '300px' }}>
           {/* Live Transcription */}

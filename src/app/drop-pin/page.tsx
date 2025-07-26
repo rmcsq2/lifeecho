@@ -1,15 +1,45 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { CarPin } from '../../types/CarPin';
+import { carPinStorage } from '../../utils/carPinStorage';
 
 export default function DropPin() {
   const [note, setNote] = useState('');
   const [pinDropped, setPinDropped] = useState(false);
+  const [carPin, setCarPin] = useState<CarPin | null>(null);
+  const [currentDistance, setCurrentDistance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const activeCarPin = carPinStorage.getCarPin();
+    setCarPin(activeCarPin);
+
+    if (activeCarPin && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const distance = carPinStorage.calculateDistance(
+            activeCarPin.latitude,
+            activeCarPin.longitude,
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          setCurrentDistance(distance);
+        },
+        (error) => console.error('Failed to get current location:', error)
+      );
+    }
+  }, []);
 
   const handleDropPin = () => {
     setPinDropped(true);
     console.log('Pin dropped with note:', note);
     setTimeout(() => setPinDropped(false), 2000);
+  };
+
+  const handleRemoveCarPin = () => {
+    carPinStorage.removeCarPin();
+    setCarPin(null);
+    setCurrentDistance(null);
   };
 
   return (
@@ -61,6 +91,35 @@ export default function DropPin() {
             rows={3}
           />
         </div>
+
+        {/* Car Pin Status */}
+        {carPin && (
+          <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+            <h3 className="font-canva-sans text-lg font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+              🚗 Active Car Pin
+            </h3>
+            <p className="font-canva-sans text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
+              Dropped: {new Date(carPin.createdAt).toLocaleString()}
+            </p>
+            <p className="font-canva-sans text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
+              Geofence: {Math.round(carPin.geofenceRadius * 3.28084)} feet
+            </p>
+            {currentDistance !== null && (
+              <p className="font-canva-sans text-sm mb-3" style={{ color: 'var(--muted-foreground)' }}>
+                Current distance: {Math.round(currentDistance * 3.28084)} feet
+              </p>
+            )}
+            <button
+              onClick={handleRemoveCarPin}
+              className="px-4 py-2 rounded-lg font-canva-sans text-sm font-medium text-white transition-colors duration-200"
+              style={{ backgroundColor: '#ef4444' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+            >
+              Remove Car Pin
+            </button>
+          </div>
+        )}
 
         {/* Action Button */}
         <div className="mb-8">

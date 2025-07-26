@@ -5,10 +5,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
+import { carPinStorage } from '../../utils/carPinStorage';
+import { useGeofenceMonitoring } from '../../hooks/useGeofenceMonitoring';
 
 export default function Home() {
   const [isActivated, setIsActivated] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const [carPinStatus, setCarPinStatus] = useState<string>('');
   const [triggerWord, setTriggerWord] = useState('echo');
 
   useEffect(() => {
@@ -59,7 +62,30 @@ export default function Home() {
       setIsActivated(false);
       setCurrentTranscript('');
       console.log('Home voice stopped by voice command');
+    },
+    onCarPinDetected: async () => {
+      try {
+        const carPin = await carPinStorage.saveCarPin();
+        if (carPin) {
+          setCarPinStatus('🚗 Car pin dropped successfully!');
+          setTimeout(() => setCarPinStatus(''), 3000);
+        } else {
+          setCarPinStatus('❌ Failed to drop car pin. GPS may not be available.');
+          setTimeout(() => setCarPinStatus(''), 3000);
+        }
+      } catch (error) {
+        setCarPinStatus('❌ GPS not available. Please enable location services.');
+        setTimeout(() => setCarPinStatus(''), 3000);
+      }
     }
+  });
+
+  useGeofenceMonitoring({
+    onCarPinReturn: () => {
+      setCarPinStatus('🚗 Welcome back to your car!');
+      setTimeout(() => setCarPinStatus(''), 5000);
+    },
+    voiceResponseEnabled: true
   });
 
   useEffect(() => {
@@ -155,6 +181,15 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Car Pin Status */}
+        {carPinStatus && (
+          <div className="mx-8 mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--card)', border: '2px solid var(--primary-blue)' }}>
+            <p className="font-canva-sans text-base text-center" style={{ color: 'var(--foreground)' }}>
+              {carPinStatus}
+            </p>
+          </div>
+        )}
 
         {/* 5 Icon Row */}
         <div className="flex items-center justify-between w-full max-w-md mb-16">

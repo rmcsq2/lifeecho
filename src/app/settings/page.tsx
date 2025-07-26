@@ -15,6 +15,10 @@ export default function AppSettings() {
     pinGeoTag: true,
     aiTone: 'calm', // 'calm', 'motivational', 'analytical'
     
+    carPinEnabled: true,
+    geofenceRadius: 3.048, // 10 feet in meters
+    carPinVoiceResponse: true,
+    
     // Premium AI & Ask Echo
     premiumAI: true,
     askEcho: true
@@ -283,6 +287,52 @@ export default function AppSettings() {
                   onToggle={() => handleToggle('pinGeoTag')} 
                 />
               </div>
+
+              <div className="flex justify-between items-center">
+                <span className="font-canva-sans text-base" style={{ color: '#4E4B4B' }}>Car Pin Feature</span>
+                <ToggleSwitch 
+                  enabled={settings.carPinEnabled} 
+                  onToggle={() => handleToggle('carPinEnabled')} 
+                />
+              </div>
+
+              {settings.carPinEnabled && (
+                <>
+                  <div className="ml-4 space-y-4">
+                    <div>
+                      <h4 className="font-canva-sans text-base font-medium mb-3" style={{ color: '#4E4B4B' }}>
+                        Geofence Radius (feet)
+                      </h4>
+                      <div className="px-3">
+                        <input
+                          type="range"
+                          min="5"
+                          max="50"
+                          value={Math.round(settings.geofenceRadius * 3.28084)}
+                          onChange={(e) => handleSliderChange('geofenceRadius', parseInt(e.target.value) / 3.28084)}
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, #3B6EFF 0%, #3B6EFF ${((Math.round(settings.geofenceRadius * 3.28084) - 5) / 45) * 100}%, #E5E7EB ${((Math.round(settings.geofenceRadius * 3.28084) - 5) / 45) * 100}%, #E5E7EB 100%)`
+                          }}
+                        />
+                        <div className="flex justify-between text-sm mt-1">
+                          <span className="font-canva-sans" style={{ color: '#9CA3AF' }}>5 ft</span>
+                          <span className="font-canva-sans" style={{ color: '#4E4B4B' }}>{Math.round(settings.geofenceRadius * 3.28084)} ft</span>
+                          <span className="font-canva-sans" style={{ color: '#9CA3AF' }}>50 ft</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="font-canva-sans text-base" style={{ color: '#4E4B4B' }}>Voice Response on Return</span>
+                      <ToggleSwitch 
+                        enabled={settings.carPinVoiceResponse} 
+                        onToggle={() => handleToggle('carPinVoiceResponse')} 
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="flex justify-between items-center">
                 <span className="font-canva-sans text-base" style={{ color: '#4E4B4B' }}>AI Tone Preference</span>

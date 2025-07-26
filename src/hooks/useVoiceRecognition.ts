@@ -69,6 +69,7 @@ interface VoiceRecognitionOptions {
   onSpeechRateDetected?: (rate: 'slower' | 'faster' | 'normal') => void;
   onWordByWordDetected?: () => void;
   onSearchDetected?: (searchTerm: string, searchType: 'last' | 'all') => void;
+  onCarPinDetected?: () => void;
   autoSaveDelay?: number;
 }
 
@@ -88,6 +89,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onSpeechRateDetected,
     onWordByWordDetected,
     onSearchDetected,
+    onCarPinDetected,
     autoSaveDelay = 5000
   } = options;
 
@@ -465,6 +467,29 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           
           if (hasWordByWordCommand && onWordByWordDetected) {
             onWordByWordDetected();
+            
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+
+          const carPinCommands = [
+            'echo drop a pin for my car',
+            'echo drop car pin',
+            'echo drop pin for my car',
+            `${triggerWord.toLowerCase()} drop a pin for my car`,
+            `${triggerWord.toLowerCase()} drop car pin`,
+            `${triggerWord.toLowerCase()} drop pin for my car`
+          ];
+          
+          const hasCarPinCommand = carPinCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasCarPinCommand && onCarPinDetected) {
+            onCarPinDetected();
             
             shouldContinueListening.current = false;
             isWaitingForTrigger.current = true;
