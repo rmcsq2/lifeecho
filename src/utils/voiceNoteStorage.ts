@@ -113,6 +113,26 @@ export const voiceNoteStorage = {
     }
   },
 
+  archiveVoiceNote: (id: string): void => {
+    const notes = voiceNoteStorage.getVoiceNotes();
+    const updatedNotes = notes.map(note => {
+      if (note.id === id) {
+        return {
+          ...note,
+          archived: true,
+          archivedAt: Date.now()
+        };
+      }
+      return note;
+    });
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+    } catch (error) {
+      console.error('Failed to archive voice note:', error);
+    }
+  },
+
   clearAllNotes: (): void => {
     try {
       localStorage.removeItem(STORAGE_KEY);

@@ -17,14 +17,17 @@ export default function VoiceJournal() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSettings, setSpeechSettings] = useState({ enabled: true, defaultLanguage: 'es', rate: 1 });
   const [searchResults, setSearchResults] = useState<VoiceNote[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('Sure Site');
   const [searchType, setSearchType] = useState<'last' | 'all'>('all');
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setTriggerWord(localStorage.getItem('customTriggerWord') || 'echo');
       setSpeechSettings(translationService.getSpeechSettings());
+      
+      const results = voiceNoteStorage.searchVoiceNotes('Sure Site', 'all');
+      setSearchResults(results);
     }
   }, []);
 
@@ -135,6 +138,20 @@ export default function VoiceJournal() {
     if (translationService.isSpeechSynthesisSupported()) {
       translationService.speakText(note.text, 'en-US');
     }
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    console.log('Deleting note:', noteId);
+    voiceNoteStorage.deleteVoiceNote(noteId);
+    const updatedResults = searchResults.filter(note => note.id !== noteId);
+    setSearchResults(updatedResults);
+  };
+
+  const handleArchiveNote = (noteId: string) => {
+    console.log('Archiving note:', noteId);
+    voiceNoteStorage.archiveVoiceNote(noteId);
+    const updatedResults = searchResults.filter(note => note.id !== noteId);
+    setSearchResults(updatedResults);
   };
 
   const closeSearchResults = () => {
@@ -469,6 +486,8 @@ export default function VoiceJournal() {
           searchType={searchType}
           onClose={closeSearchResults}
           onPlayback={handlePlayback}
+          onDelete={handleDeleteNote}
+          onArchive={handleArchiveNote}
         />
       )}
     </div>
