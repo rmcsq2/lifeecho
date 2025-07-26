@@ -161,13 +161,13 @@ export default function Notes() {
         </Link>
         
         <Link 
-          href="/map"
+          href="/settings"
           className="flex flex-col items-center space-y-2 p-3 hover:bg-accent rounded-lg transition-colors duration-200"
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#ef4444' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#6b7280' }}>
             <div className="w-6 h-6 bg-white rounded-sm"></div>
           </div>
-          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>Map</span>
+          <span className="font-canva-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>More</span>
         </Link>
       </footer>
     </div>

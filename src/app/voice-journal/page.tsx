@@ -454,11 +454,11 @@ export default function VoiceJournal() {
         </Link>
         
         <Link 
-          href="/map"
+          href="/settings"
           className="flex flex-col items-center space-y-1"
         >
-          <div className="w-8 h-8 bg-red-500 rounded-sm"></div>
-          <span className="font-canva-sans text-sm" style={{ color: '#4E4B4B' }}>Map</span>
+          <div className="w-8 h-8 rounded-sm" style={{ backgroundColor: '#6b7280' }}></div>
+          <span className="font-canva-sans text-sm" style={{ color: '#4E4B4B' }}>More</span>
         </Link>
       </footer>
 
