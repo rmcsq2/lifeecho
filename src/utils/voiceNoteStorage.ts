@@ -119,6 +119,23 @@ export const voiceNoteStorage = {
     } catch (error) {
       console.error('Failed to clear voice notes:', error);
     }
+  },
+
+  searchVoiceNotes: (searchTerm: string, searchType: 'last' | 'all' = 'all'): VoiceNote[] => {
+    const notes = voiceNoteStorage.getVoiceNotes();
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    const matchingNotes = notes.filter(note => {
+      const textMatch = note.text.toLowerCase().includes(searchTermLower);
+      const titleMatch = note.title?.toLowerCase().includes(searchTermLower);
+      return textMatch || titleMatch;
+    });
+    
+    if (searchType === 'last') {
+      return matchingNotes.slice(0, 1); // Return only the most recent match
+    }
+    
+    return matchingNotes; // Return all matches, already sorted by timestamp (most recent first)
   }
 };
 

@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { voiceNoteStorage } from '../../utils/voiceNoteStorage';
 import { translationService } from '../../utils/translationService';
+import { VoiceSearchResults } from '../../components/VoiceSearchResults';
+import { VoiceNote } from '../../types/VoiceNote';
 
 export default function VoiceJournal() {
   const [triggerWord, setTriggerWord] = useState('echo');
@@ -14,6 +16,10 @@ export default function VoiceJournal() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSettings, setSpeechSettings] = useState({ enabled: true, defaultLanguage: 'es', rate: 1 });
+  const [searchResults, setSearchResults] = useState<VoiceNote[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState<'last' | 'all'>('all');
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -111,6 +117,32 @@ export default function VoiceJournal() {
     translationService.setSpeechSettings(newSettings);
   };
 
+  const handleSearchDetected = (term: string, type: 'last' | 'all') => {
+    console.log('=== VOICE SEARCH DETECTED ===');
+    console.log('Search term:', term);
+    console.log('Search type:', type);
+    
+    const results = voiceNoteStorage.searchVoiceNotes(term, type);
+    setSearchResults(results);
+    setSearchTerm(term);
+    setSearchType(type);
+    setShowSearchResults(true);
+    
+    console.log('Search results:', results);
+  };
+
+  const handlePlayback = (note: VoiceNote) => {
+    if (translationService.isSpeechSynthesisSupported()) {
+      translationService.speakText(note.text, 'en-US');
+    }
+  };
+
+  const closeSearchResults = () => {
+    setShowSearchResults(false);
+    setSearchResults([]);
+    setSearchTerm('');
+  };
+
   const { 
     isListening, 
     transcript, 
@@ -145,7 +177,8 @@ export default function VoiceJournal() {
     },
     onTranslationDetected: handleTranslation,
     onSpeechRateDetected: handleSpeechRate,
-    onWordByWordDetected: handleWordByWord
+    onWordByWordDetected: handleWordByWord,
+    onSearchDetected: handleSearchDetected
   });
 
   useEffect(() => {
@@ -428,6 +461,16 @@ export default function VoiceJournal() {
           <span className="font-canva-sans text-sm" style={{ color: '#4E4B4B' }}>Map</span>
         </Link>
       </footer>
+
+      {showSearchResults && (
+        <VoiceSearchResults
+          searchResults={searchResults}
+          searchTerm={searchTerm}
+          searchType={searchType}
+          onClose={closeSearchResults}
+          onPlayback={handlePlayback}
+        />
+      )}
     </div>
   );
 }

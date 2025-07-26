@@ -68,6 +68,7 @@ interface VoiceRecognitionOptions {
   onTranslationDetected?: (text: string, targetLanguage: string) => void;
   onSpeechRateDetected?: (rate: 'slower' | 'faster' | 'normal') => void;
   onWordByWordDetected?: () => void;
+  onSearchDetected?: (searchTerm: string, searchType: 'last' | 'all') => void;
   autoSaveDelay?: number;
 }
 
@@ -86,6 +87,7 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
     onTranslationDetected,
     onSpeechRateDetected,
     onWordByWordDetected,
+    onSearchDetected,
     autoSaveDelay = 5000
   } = options;
 
@@ -463,6 +465,67 @@ export const useVoiceRecognition = (options: VoiceRecognitionOptions = {}) => {
           
           if (hasWordByWordCommand && onWordByWordDetected) {
             onWordByWordDetected();
+            
+            shouldContinueListening.current = false;
+            isWaitingForTrigger.current = true;
+            onStopDetected?.();
+            setTranscript('');
+            persistentTranscript.current = '';
+            recognition.stop();
+            return;
+          }
+
+          const searchCommands = [
+            'echo find',
+            'echofind',
+            `${triggerWord.toLowerCase()} find`,
+            `${triggerWord.toLowerCase()}find`,
+            'echo bring up',
+            'echobring up',
+            `${triggerWord.toLowerCase()} bring up`,
+            `${triggerWord.toLowerCase()}bring up`
+          ];
+          
+          const hasSearchCommand = searchCommands.some(cmd => fullTranscript.includes(cmd));
+          
+          if (hasSearchCommand && onSearchDetected) {
+            let searchQuery = fullTranscript;
+            
+            const triggerPatterns = [
+              new RegExp(`\\b${triggerWord.toLowerCase()}\\b,?\\s*`, 'gi'),
+              new RegExp(`\\becho\\b,?\\s*`, 'gi')
+            ];
+            
+            triggerPatterns.forEach(pattern => {
+              searchQuery = searchQuery.replace(pattern, '').trim();
+            });
+            
+            searchQuery = searchQuery.replace(/\b(find|bring up)\b/gi, '').trim();
+            
+            const searchPatterns = [
+              /(?:the last time i spoke about|last time i mentioned|last mention of)\s+(.+)/i,
+              /(?:all notes where i talked about|all mentions of|everything about)\s+(.+)/i,
+              /(?:spoke about|talked about|mentioned)\s+(.+)/i,
+              /(.+)/i // fallback to capture remaining text
+            ];
+            
+            let searchTerm = '';
+            let searchType = 'all'; // 'last' or 'all'
+            
+            for (const pattern of searchPatterns) {
+              const match = searchQuery.match(pattern);
+              if (match && match[1]) {
+                searchTerm = match[1].trim();
+                if (pattern.source.includes('last time')) {
+                  searchType = 'last';
+                }
+                break;
+              }
+            }
+            
+            if (searchTerm) {
+              onSearchDetected(searchTerm, searchType as 'last' | 'all');
+            }
             
             shouldContinueListening.current = false;
             isWaitingForTrigger.current = true;

@@ -21,4 +21,5 @@ export interface VoiceNoteStorage {
   deleteVoiceNote: (id: string) => void;
   clearAllNotes: () => void;
   updateVoiceNoteTranslation: (noteId: string, languageCode: string, translatedText: string) => void;
+  searchVoiceNotes: (searchTerm: string, searchType?: 'last' | 'all') => VoiceNote[];
 }
