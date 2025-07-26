@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { VoiceNote } from '../types/VoiceNote';
 import { formatNoteTimestamp } from '../utils/voiceNoteStorage';
 
@@ -235,10 +235,14 @@ export const VoiceSearchResults: React.FC<VoiceSearchResultsProps> = ({
             <div className="relative">
               {sortedDateKeys.map((dateKey, groupIndex) => (
                 <div key={dateKey}>
-                  <div className="sticky top-0 bg-white dark:bg-gray-800 py-3 px-6 border-b border-gray-200 dark:border-gray-700 z-10">
-                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                      {formatDateHeader(noteGroups[dateKey][0].timestamp)}
-                    </h3>
+                  <div className="flex items-center mb-6 px-6 pt-6">
+                    <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div className="px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {formatDateHeader(noteGroups[dateKey][0].timestamp)}
+                      </p>
+                    </div>
+                    <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
                   </div>
                   
                   {noteGroups[dateKey].map((note, noteIndex) => {
@@ -261,42 +265,53 @@ export const VoiceSearchResults: React.FC<VoiceSearchResultsProps> = ({
                           onMouseMove={(e) => handleMouseMove(e, note.id)}
                           onMouseUp={(e) => handleMouseUp(e, note.id)}
                         >
-                          <div className="flex items-start gap-4 px-6 py-4">
-                            <div className="flex-shrink-0 text-right min-w-[60px]">
-                              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                {time}
-                              </span>
-                              {onPlayback && (
-                                <button
-                                  onClick={() => onPlayback(note)}
-                                  className="block mt-1 p-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors"
-                                  title="Play back note"
-                                >
-                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                  </svg>
-                                </button>
-                              )}
+                          <div className="px-6 py-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                                  {note.title || 'Voice Note'}
+                                </h3>
+                                <div className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                                  {highlightSearchTerm(getPreviewText(note.text), searchTerm)}
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-3 ml-4">
+                                <div className="flex items-center space-x-2">
+                                  {note.latitude && note.longitude && (
+                                    <span className="text-red-500 text-sm">📍</span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {time}
+                                </p>
+                                {onPlayback && (
+                                  <button
+                                    onClick={() => onPlayback(note)}
+                                    className="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 bg-blue-600 hover:bg-blue-700"
+                                    title="Play back note"
+                                  >
+                                    <div className="w-0 h-0 border-l-[6px] border-l-white border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-1"></div>
+                                  </button>
+                                )}
+                              </div>
                             </div>
                             
-                            <div className="flex-1 min-w-0">
-                              {note.title && (
-                                <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-1">
-                                  {note.title}
-                                </h4>
+                            <div className="flex space-x-2 mt-3">
+                              {onDelete && (
+                                <button
+                                  onClick={() => onDelete(note.id)}
+                                  className="px-3 py-1 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors duration-200"
+                                >
+                                  🗑 Delete
+                                </button>
                               )}
-                              
-                              <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                {highlightSearchTerm(getPreviewText(note.text), searchTerm)}
-                              </div>
-                              
-                              {note.latitude && note.longitude && (
-                                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                  </svg>
-                                  Location recorded
-                                </div>
+                              {onArchive && (
+                                <button
+                                  onClick={() => onArchive(note.id)}
+                                  className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors duration-200"
+                                >
+                                  📁 Archive
+                                </button>
                               )}
                             </div>
                           </div>
@@ -323,14 +338,14 @@ export const VoiceSearchResults: React.FC<VoiceSearchResultsProps> = ({
                         )}
                         
                         {!isLastInGroup && (
-                          <div className="border-b border-gray-100 dark:border-gray-700 mx-6"></div>
+                          <div className="border-b border-gray-200 dark:border-gray-600 mx-6"></div>
                         )}
                       </div>
                     );
                   })}
                   
                   {groupIndex < sortedDateKeys.length - 1 && (
-                    <div className="border-b-2 border-gray-200 dark:border-gray-600 my-4"></div>
+                    <div className="border-b-2 border-gray-300 dark:border-gray-600 my-6"></div>
                   )}
                 </div>
               ))}
