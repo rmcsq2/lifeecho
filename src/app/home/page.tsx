@@ -199,7 +199,7 @@ export default function Home() {
           </Link>
           
           <Link 
-            href="/more"
+            href="/settings"
             className="flex flex-col items-center space-y-2 p-3 rounded-lg transition-colors duration-200 hover:bg-accent"
           >
             <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--muted)' }}>
